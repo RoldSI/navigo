@@ -3,6 +3,30 @@ h1 {
 }
 
 .layout {
-  display: flex;
-  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  padding: var(--grid-gap);
+  margin: 0;
+  background-color: var(--clr-bg-primary);
+
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "sidebar header"
+    "sidebar content";
+  gap: var(--grid-gap);
 }
+
+.sidebar {
+  grid-area: sidebar;
+}
+
+.header {
+  grid-area: header;
+}
+
+.map-component {
+  grid-area: content;
+}
+
