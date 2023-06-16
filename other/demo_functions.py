@@ -8,10 +8,11 @@ import numpy as np
 import polyline
 import folium
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
-
-
+# cors = CORS(app)
+cors = CORS(app, origins='http://localhost:4200')
 
 
 env_vars = dotenv_values("../.env")
@@ -134,7 +135,7 @@ def main():
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
-    data = {'message': 'Hello from the backend api data!'}
+    data = {'message': 'Hello from the backend api data hey!'}
     return jsonify(data)
 
 @app.route('/', methods=['GET'])
@@ -145,5 +146,5 @@ def get_index():
  
 
 if __name__ == "__main__":
-    main()
+    # main()
     app.run()
