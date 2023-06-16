@@ -1,0 +1,10 @@
+.map-wrapper {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+::ng-deep .map-container {
+  border-radius: var(--default-border-radius);
+}
+

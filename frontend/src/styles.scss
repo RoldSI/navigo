@@ -1,7 +1,27 @@
+:root {
+  --sidebar-width: 200px;
+  --header-height: 50px;
+  --default-margin: .3rem;
+  --default-padding: .75rem;
+  --default-border-radius: .75rem;
+  --grid-gap: .5rem;
+
+  --clr-bg-primary: #f0f0f0;
+  --clr-bg-secondary: #ffffff;
+  --clr-border-primary: #d2d2d2;
+
+
+}
+
+
 /* You can add global styles to this file, and also import other style files */
 body {
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
   padding: 0;
+  margin: 0;
+}
+
+.panel {
+  background-color: var(--clr-bg-secondary);
+  border-radius: var(--default-border-radius);
+  padding: var(--default-padding);
 }
