@@ -3,7 +3,7 @@ import requests
 
 GRAPHHOPPER_API_KEY = 'PUT_HERE'
 
-def calculate_route(origin, destination, vehicle):
+def calculate_route_using_graphhopper(origin, destination, vehicle):
     url = f'https://graphhopper.com/api/1/route?point={origin["lat"]},{origin["lng"]}&point={destination["lat"]},{destination["lng"]}&vehicle={vehicle}&key={GRAPHHOPPER_API_KEY}'
     #  "https://graphhopper.com/api/1/route?point=51.131,12.414&point=48.224,3.867&profile=car&locale=de&calc_points=false&key=api_key"
     st.write(url)
@@ -31,7 +31,7 @@ def main():
     vehicle = st.selectbox("Mode of Transport", ['car', 'bike', 'foot', 'bus', 'as_the_crow_flies'])
 
     if st.button("Calculate Route"):
-        calculate_route(origin, destination, vehicle)
+        calculate_route_using_graphhopper(origin, destination, vehicle)
 
 
 if __name__ == "__main__":
