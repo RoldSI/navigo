@@ -1,67 +1,201 @@
+from firebase_admin import auth
 from flask import Flask, jsonify, request
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, firestore
+import openai
+from utils import GmapsUtils
+from transport_co2 import Mode #https://pypi.org/project/transport-co2/
+from dotenv import dotenv_values
+
+env_vars = dotenv_values("../.env")
+OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
+openai.api_key = OPENAI_API_KEY
 
 cred = credentials.Certificate('firebaseCredentials.json')
-firebase_admin.initialize_app(cred)
+firebaseApp = firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 app = Flask(__name__)
 favorites = []
 
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    data = {'message': 'Hello from the backend api data!'}
-    return jsonify(data)
 
-
-@app.route('/api/backend', methods=['GET'])
-def get_index():
-    data = {'message': 'Hello from the backend!'}
-    return jsonify(data)
-
-
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
-
-@app.route('/api/favorites/add', methods=['POST'])
-def add_favorite():
-    data = request.get_json()
-    if 'favorite' in data:
-        favorite = data['favorite']
-        favorites.append(favorite)
-        return jsonify({'message': 'Favorite added successfully'})
-    else:
-        return jsonify({'message': 'Invalid request'})
-
-@app.route('/api/favorites/remove', methods=['POST'])
-def remove_favorite():
-    data = request.get_json()
-    if 'favorite' in data:
-        favorite = data['favorite']
-        if favorite in favorites:
-            favorites.remove(favorite)
-            return jsonify({'message': 'Favorite removed successfully'})
-        else:
-            return jsonify({'message': 'Favorite not found'})
-    else:
-        return jsonify({'message': 'Invalid request'})
-
-@app.route('/authenticate', methods=['GET'])
-def authenticate_user():
-    id_token = request.json['idToken']
-    '''try:
-        decoded_token = auth.verify_id_token(id_token)
+def authenticate_user(bearer_token):
+    if bearer_token is None:
+        return None
+    try:
+        decoded_token = auth.verify_id_token(bearer_token)
         uid = decoded_token['uid']
-        # Authentication successful
-        # You can now use the 'uid' to identify the user and perform further actions
-        return 'Authentication successful'
-    except auth.AuthError as e:
+        return uid
+    except Exception as e:
         # Authentication failed
-        return str(e), 401'''
-    return 'shit'
-    #data = {'message': 'Hello from the backend!'}
-    #return jsonify(data)
+        return None
+
+
+@app.route('/api/favorites', methods=['POST'])
+def add_favorite():
+    bearer_token = request.headers.get('Authorization')
+    uid = authenticate_user(bearer_token)
+    # uid = 'hoi'
+    if uid is None:
+        return 'authentication failed'
+    user_favorites_doc_ref = db.collection("favorites").document(uid)
+    user_favorites_list = user_favorites_doc_ref.get().to_dict()
+    if user_favorites_list is None:
+        user_favorites_list = []
+    else:
+        user_favorites_list = user_favorites_list["favorites"]
+    print(user_favorites_list)
+    new_favorites = request.json['input']
+    for favorite in new_favorites:
+        if favorite not in user_favorites_list:
+            user_favorites_list.append(favorite)
+            print(f"{favorite} added to favorites")
+        else:
+            print(f"{favorite} already in favorites")
+    user_favorites_doc_ref.set({"favorites": user_favorites_list})
+    return 'Provided favorites added successfully'
+
+
+@app.route('/api/favorites', methods=['DELETE'])
+def remove_favorite():
+    bearer_token = request.headers.get('Authorization')
+    uid = authenticate_user(bearer_token)
+    # uid = 'hoi'
+    if uid is None:
+        return 'authentication failed'
+    user_favorites_doc_ref = db.collection("favorites").document(uid)
+    user_favorites_list = user_favorites_doc_ref.get().to_dict()
+    if user_favorites_list is None:
+        user_favorites_list = []
+    else:
+        user_favorites_list = user_favorites_list["favorites"]
+    print(user_favorites_list)
+    remove_favorites = request.json['input']
+    for favorite in remove_favorites:
+        if favorite in user_favorites_list:
+            user_favorites_list.remove(favorite)
+            print(f"{favorite} removed from favorites")
+        else:
+            print(f"{favorite} not in favorites")
+    user_favorites_doc_ref.set({"favorites": user_favorites_list})
+    return 'Provided favorites removed successfully'
+
+
+@app.route('/api/favorites', methods=['GET'])
+def get_favorites():
+    bearer_token = request.headers.get('Authorization')
+    uid = authenticate_user(bearer_token)
+    # uid = 'hoi'
+    if uid is None:
+        return 'authentication failed'
+    user_favorites_doc_ref = db.collection("favorites").document(uid)
+    user_favorites_list = user_favorites_doc_ref.get().to_dict()
+    if user_favorites_list is None:
+        user_favorites_list = []
+    else:
+        user_favorites_list = user_favorites_list["favorites"]
+    print(user_favorites_list)
+    return jsonify({"favorites": user_favorites_list})
+
+
+@app.route('/api/suggestions', methods=['GET'])
+def generate_suggestion():
+    location = request.json['input']  # get data from frontend
+    message = [{"role": "user",
+                "content": f"What are some things to do in {location}? Your answer should not exceed 25 words."}]
+    chat = openai.ChatCompletion.create(
+        model="gpt-4", messages=message
+    )
+    reply = chat.choices[0].message.content
+    return reply
+
+
+@app.route('/api/routes', methods=['GET'])
+def routing():
+    # request_data = request.args
+    # from_param = request_data.get('from')
+    # to_param = request_data.get('to')
+    request_data = {
+        'from': 'Berlin',
+        'to': 'Munich',
+    }
+    (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
+        request_data['from'],
+        request_data['to'],
+        'walking'
+    )
+    (b_dp, b_gm, b_di, b_du) = GmapsUtils.calculate_route_gmaps(
+        request_data['from'],
+        request_data['to'],
+        'biking'
+    )
+    (d_dp, d_gm, d_di, d_du) = GmapsUtils.calculate_route_gmaps(
+        request_data['from'],
+        request_data['to'],
+        'driving'
+    )
+    (p_dp, p_gm, p_di, p_du) = GmapsUtils.calculate_route_gmaps(
+        request_data['from'],
+        request_data['to'],
+        'public'
+    )
+    response_data = {
+        'walking': {
+            'distance': w_di,  # meters
+            'duration': w_du,  # minutes
+            'decoded_points': w_dp,  # array of waypoints
+            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
+        },
+        'biking': {
+            'distance': 30,  # meters
+            'time': 30,  # minutes
+            'efficiency': 34
+        },
+        'driving': {
+            'distance': 30,  # meters
+            'time': 30,  # minutes
+            'efficiency': 34
+        },
+        'public': {
+            'distance': 30,  # meters
+            'time': 30,  # minutes
+            'efficiency': 34
+        },
+        'plane': {
+            'distance': 30,  # meters
+            'time': 30,  # minutes
+            'efficiency': 34
+        }
+    }
+    return jsonify(response_data)
+
+
+@app.route('/api/authenticateDemo', methods=['GET'])
+def authentication_demo():
+    bearer_token = request.headers.get('Authorization')
+    uid = authenticate_user(bearer_token)
+    if uid is None:
+        return 'authentication failed'
+    else:
+        return 'authentication successful'
+
+def calculate_emissions(distance, mode):
+    if mode == "walking" or mode in "biking":
+        if distance == 0:
+          emissions = 0
+        else:
+          emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km=distance)/25
+    elif mode == "car":
+        emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km=distance)
+    elif mode == "public_transportation":
+        emissions = Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance)
+    elif mode == "plane":
+        emissions = Mode.AIRPLANE.estimate_co2(distance_in_km=distance)
+    else:
+        print("Invalid mode of transportation.")
+        return None
+
+    return emissions
 
 
 if __name__ == '__main__':
