@@ -1,0 +1,11 @@
+<div class="map-wrapper panel">
+  <google-map height="100%"
+              width="100%"
+              [center]="center"
+              [zoom]="zoom"
+              (mapClick)="moveMap($event)"
+              (mapMousemove)="move($event)"></google-map>
+
+</div>
+
+
