@@ -61,13 +61,12 @@ def generate_suggestion():
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
-    request_data = request.get_json()
-    print(request_data)
+    request_data = request.args
     '''request_data = {
         'from': 'Berlin',
         'to': 'Munich',
     }'''
-    reponse_data = {
+    response_data = {
 
     }
     return jsonify(reponse_data)
