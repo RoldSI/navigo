@@ -24,13 +24,7 @@ def authenticate_user(bearer_token):
         return None
 
 
-@app.route('/api/backend', methods=['GET'])
-def get_index():
-    data = {'message': 'This is the Navigon-msg-code-and-create-hackathon backend!'}
-    return jsonify(data)
-
-
-@app.route('/api/favorites/add', methods=['POST'])
+@app.route('/api/favorites', methods=['POST'])
 def add_favorite():
     favorite = request.json['input']
     favorites.append(favorite)
@@ -38,7 +32,7 @@ def add_favorite():
     return jsonify(response)
 
 
-@app.route('/api/favorites/remove', methods=['POST'])
+@app.route('/api/favorites', methods=['DELETE'])
 def remove_favorite():
     favorite = request.json['input']
     if favorite in favorites:
@@ -48,30 +42,19 @@ def remove_favorite():
         response = {'message': 'Favorite not found'}
     return jsonify(response)
 
-@app.route('/authenticate', methods=['GET'])
-def authenticate_user():
-    id_token = request.json['idToken']
-    '''try:
-        decoded_token = auth.verify_id_token(id_token)
-        uid = decoded_token['uid']
-        # Authentication successful
-        # You can now use the 'uid' to identify the user and perform further actions
-        return 'Authentication successful'
-    except auth.AuthError as e:
-        # Authentication failed
-        return str(e), 401'''
-    return 'shit'
-    #data = {'message': 'Hello from the backend!'}
-    #return jsonify(data)
 
-@app.route('/suggestions', methods=['POST'])
+@app.route('/api/favorites', methods=['GET'])
+def get_favorites():
+    return 'this should return favorites'
+
+
+@app.route('/api/suggestions', methods=['GET'])
 def generate_suggestion():
   location = request.json['input'] #get data from frontend
   message = [ {"role": "user", "content": f"What are some things to do in {location}? Your answer should not exceed 25 words."} ]
-
   chat = openai.ChatCompletion.create(
-  model="gpt-3.5-turbo", messages=message
-    )
+      model="gpt-4", messages=message
+  )
   reply = chat.choices[0].message.content
   return reply
 
