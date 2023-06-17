@@ -385,6 +385,25 @@ def add_user_route():
     return jsonify({"message": "successfully added route to personal user routes"}), 200
 
 
+@app.route('/api/user/score', methods=['GET'])
+def get_user_score():
+    bearer_token = request.headers.get('Authorization')
+    uid = authenticate_user(bearer_token)
+    uid = 'KV91qiVsRDPakr9OxV456O2dgBE2'
+    if uid is None:
+        return jsonify({"message": "authentication failed"}), 401
+    user_favorites_doc_ref = db.collection("user").document(uid)
+    user_routes_collection_stream = user_favorites_doc_ref.collection("routes").stream()
+    score = 0
+    counter = 0
+    for user_route in user_routes_collection_stream:
+        user_rou = user_route.to_dict()
+        score += user_rou['efficiency'] * user_rou['distance']
+        counter += user_rou['distance']
+    score /= counter
+    return jsonify({"score": score})
+
+
 @app.route('/api/emissions', methods=['GET'])
 def calculate_emissions(distance, mode):
     distance = request.args.get("distance")
