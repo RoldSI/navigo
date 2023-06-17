@@ -141,22 +141,26 @@ def routing():
     )
     response_data = {
         'walking': {
+            'response': w_gm,
             'distance': w_di,  # meters
             'duration': w_du,  # minutes
             'decoded_points': w_dp,  # array of waypoints
             'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
         },
         'biking': {
+            'response': b_gm,
             'distance': 30,  # meters
             'time': 30,  # minutes
             'efficiency': 34
         },
         'driving': {
+            'response': d_gm,
             'distance': 30,  # meters
             'time': 30,  # minutes
             'efficiency': 34
         },
         'public': {
+            'response': p_gm,
             'distance': 30,  # meters
             'time': 30,  # minutes
             'efficiency': 34
