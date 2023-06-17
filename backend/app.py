@@ -108,12 +108,12 @@ def generate_suggestion():
     reply = chat.choices[0].message.content
     return reply
 
-@app.route('/api/suggestions', methods=['GET'])
+@app.route('/api/intro', methods=['GET'])
 def generate_chatbot_hello():
     message = [{"role": "user",
                 "content": f"You are the assistant of a route planing system for transportation which considers co2 emissions. Say hello to it, introduce yourself Your answer should not exceed 25 words."}]
     chat = openai.ChatCompletion.create(
-        model="gpt-4", messages=message
+        model="gpt-3.5-turbo", messages=message
     )
     reply = chat.choices[0].message.content
     return reply
@@ -231,6 +231,7 @@ def calculate_emissions(distance, mode):
         return None
 
     return emissions
+
 
 #this method calculates an efficiency score based on time and co2 emissions
 def calculate_efficiency(distance, travel_mode, min_travel_time, max_travel_time, travel_time):
