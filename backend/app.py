@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 import firebase_admin
 from firebase_admin import credentials, auth
 import openai
+from utils import GmapsUtils
 
 openai.api_key = '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'
 cred = credentials.Certificate('firebaseCredentials.json')
@@ -68,14 +69,13 @@ def routing():
         'from': 'Berlin',
         'to': 'Munich',
     }
+    (decoded_points, gm, distance, duration) = GmapsUtils.calculate_route_gmaps(request_data['from'], request_data['to'], 'walking')
     response_data = {
         'walking': {
-            'distance': 30, # meters
-            'duration': 30, # minutes
-            'decoded_points': [ # array of waypoints
-
-            ],
-            'efficiency': 34 # (1)/((time * factor) * (co2 * factor))
+            'distance': distance,  # meters
+            'duration': duration,  # minutes
+            'decoded_points': decoded_points,  # array of waypoints
+            'efficiency': 34  # (1)/((time * factor) * (co2 * factor))
         },
         'biking': {
             'distance': 30,  # meters
