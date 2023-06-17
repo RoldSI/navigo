@@ -106,11 +106,8 @@ def get_favorites():
 @app.route('/api/suggestions', methods=['GET'])
 def generate_suggestion():
     location = request.args.get("input") # get data from frontend
-    print(location)
     message = [{"role": "user",
-                "content": f"What are some things to do in {location}?
-                Your answer should not exceed 25 words, and should be json-formatted containing the
-                location and the address each."}]
+                "content": "What are some things to do in {location}? Your answer should not exceed 25 words, and should be json-formatted containing the location and the address each."}]
     chat = openai.ChatCompletion.create(
         model="gpt-4", messages=message
     )
@@ -121,54 +118,70 @@ def generate_suggestion():
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
-    # request_data = request.args
-    # from_param = request_data.get('from')
-    # to_param = request_data.get('to')
-    request_data = {
-        'from': 'Berlin',
-        'to': 'Munich',
-    }
-    (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
-        request_data['from'],
-        request_data['to'],
+    print(request.args)
+    from_loc = request.args.get("from") # get data from frontend
+    to_loc = request.args.get("to") # get data from frontend
+
+    (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'walking'
     )
-    (b_dp, b_gm, b_di, b_du) = GmapsUtils.calculate_route_gmaps(
-        request_data['from'],
-        request_data['to'],
+    (b_dist, b_dur, b_wp, b_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'biking'
     )
-    (d_dp, d_gm, d_di, d_du) = GmapsUtils.calculate_route_gmaps(
-        request_data['from'],
-        request_data['to'],
+    (d_dist, d_dur, d_wp, d_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'driving'
     )
-    (p_dp, p_gm, p_di, p_du) = GmapsUtils.calculate_route_gmaps(
-        request_data['from'],
-        request_data['to'],
+    (p_dist, p_dur, p_wp, p_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'public'
     )
     response_data = {
         'walking': {
-            'distance': w_di,  # meters
-            'duration': w_du,  # minutes
-            'decoded_points': w_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
+            'distance': w_dist,
+            'duration': w_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': 'WALKING',
+                'geocoded_waypoints': w_wp,
+                'routes': w_r,
+            }
         },
         'biking': {
-            'distance': 30,  # meters
-            'time': 30,  # minutes
-            'efficiency': 34
+            'distance': b_dist,
+            'duration': b_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': 'WALKING',
+                'geocoded_waypoints': b_wp,
+                'routes': b_r,
+            }
         },
         'driving': {
-            'distance': 30,  # meters
-            'time': 30,  # minutes
-            'efficiency': 34
+            'distance': d_dist,
+            'duration': d_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': 'WALKING',
+                'geocoded_waypoints': d_wp,
+                'routes': d_r,
+            }
         },
         'public': {
-            'distance': 30,  # meters
-            'time': 30,  # minutes
-            'efficiency': 34
+            'distance': p_dist,
+            'duration': p_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': 'WALKING',
+                'geocoded_waypoints': p_wp,
+                'routes': p_r,
+            }
         },
         'plane': {
             'distance': 30,  # meters
@@ -176,6 +189,9 @@ def routing():
             'efficiency': 34
         }
     }
+
+    print(response_data)
+
     return jsonify(response_data)
 
 

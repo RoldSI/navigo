@@ -43,9 +43,9 @@ export class ApiService {
     return this.http.get<any>(`${environment.apiBase}/intro`);
   }
 
-  getRoutes(): Observable<any> {
+  getRoutes(sourceDestination: { from: string, to: string }): Observable<any> {
     // const options = this.getRequestOptions();
-    return this.http.get<any>(`${environment.apiBase}/routes`);
+    return this.http.get<any>(`${environment.apiBase}/routes`, {params: sourceDestination});
   }
 
   authenticateDemo(): Observable<any> {

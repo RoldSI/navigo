@@ -40,6 +40,12 @@ export class SidebarComponent {
     // this.loadSuggestions("Karlsruhe")
   }
 
+  startSearch(): void {
+    this.apiService.getRoutes({from: "Karlsruhe HBF", to: "Durlach Bahnhof"}).subscribe((res) => {
+      console.log(res);
+    })
+  }
+
   loadInitialHelpText(): void {
     this.apiService.generateChatGPTIntro().subscribe((res) => {
       this.introText = res.intro;
