@@ -370,6 +370,13 @@ def add_user_route():
     if uid is None:
         return jsonify({"message": "authentication failed"}), 401
     new_route = request.json
+    new_route = {
+        "from": new_route['from'],
+        "to": new_route['to'],
+        "efficiency": new_route['efficiency'],
+        "catastrophy": new_route['catastrophy'],
+        "datetime": new_route['datetime']
+    }
     user_routes_collection_ref = db.collection("user").document(uid).collection("routes")
     user_routes_collection_ref.add(new_route)
     return jsonify({"message": "successfully added route to personal user routes"}), 200
