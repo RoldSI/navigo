@@ -133,18 +133,37 @@ def main():
     else:
         st.write(data)
 
-@app.route('/api/data', methods=['POST'])
+# @app.route('/api/data', methods=['POST'])
+# def get_data():
+#     data = request.get_json()
+#     message_param = 'Hello from the backend api data hey!'
+#     from_param = data.get('from')
+#     to_param = data.get('to')
+    
+#     # Your code to process the data and generate the response
+#     response_data = {'from': from_param, 'to': to_param, 'message': message_param}
+    
+    
+#     return jsonify(response_data)
+
+
+@app.route('/api/data', methods=['POST', 'GET'])
 def get_data():
-    data = request.get_json()
+    if request.method == 'POST':
+        data = request.get_json()
+        from_param = data.get('from')
+        to_param = data.get('to')
+    elif request.method == 'GET':
+        from_param = request.args.get('from')
+        to_param = request.args.get('to')
+    
     message_param = 'Hello from the backend api data hey!'
-    from_param = data.get('from')
-    to_param = data.get('to')
     
     # Your code to process the data and generate the response
     response_data = {'from': from_param, 'to': to_param, 'message': message_param}
     
-    
     return jsonify(response_data)
+
 
 @app.route('/', methods=['GET'])
 def get_index():
