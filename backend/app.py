@@ -112,32 +112,34 @@ def generate_suggestion():
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
-    # request_data = request.args
-    # from_param = request_data.get('from')
-    # to_param = request_data.get('to')
-    request_data = {
+    request_data = request.args
+    from_param = request_data.get('from')
+    print(from_param)
+    to_param = request_data.get('to')
+    print(to_param)
+    '''request_data = {
         'from': 'Berlin',
         'to': 'Munich',
-    }
+    }'''
     (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
-        request_data['from'],
-        request_data['to'],
+        from_param,
+        to_param,
         'walking'
     )
     (b_dp, b_gm, b_di, b_du) = GmapsUtils.calculate_route_gmaps(
-        request_data['from'],
-        request_data['to'],
-        'biking'
+        from_param,
+        to_param,
+        'bicycling'
     )
     (d_dp, d_gm, d_di, d_du) = GmapsUtils.calculate_route_gmaps(
-        request_data['from'],
-        request_data['to'],
+        from_param,
+        to_param,
         'driving'
     )
-    (p_dp, p_gm, p_di, p_du) = GmapsUtils.calculate_route_gmaps(
-        request_data['from'],
-        request_data['to'],
-        'public'
+    (t_dp, t_gm, t_di, t_du) = GmapsUtils.calculate_route_gmaps(
+        from_param,
+        to_param,
+        'transit'
     )
     response_data = {
         'walking': {
@@ -146,25 +148,23 @@ def routing():
             'decoded_points': w_dp,  # array of waypoints
             'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
         },
-        'biking': {
-            'distance': 30,  # meters
-            'time': 30,  # minutes
-            'efficiency': 34
+        'bicycling': {
+            'distance': b_di,  # meters
+            'duration': b_du,  # minutes
+            'decoded_points': b_dp,  # array of waypoints
+            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
         },
         'driving': {
-            'distance': 30,  # meters
-            'time': 30,  # minutes
-            'efficiency': 34
+            'distance': d_di,  # meters
+            'duration': d_du,  # minutes
+            'decoded_points': d_dp,  # array of waypoints
+            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
         },
-        'public': {
-            'distance': 30,  # meters
-            'time': 30,  # minutes
-            'efficiency': 34
-        },
-        'plane': {
-            'distance': 30,  # meters
-            'time': 30,  # minutes
-            'efficiency': 34
+        'transit': {
+            'distance': t_di,  # meters
+            'duration': t_du,  # minutes
+            'decoded_points': t_dp,  # array of waypoints
+            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
         }
     }
     return jsonify(response_data)
