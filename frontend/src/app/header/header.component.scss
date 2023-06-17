@@ -6,6 +6,11 @@
   align-content: center;
   align-items: center;
   justify-content: space-between;
+
+  .left, .right {
+    display: flex;
+    flex-direction: row;
+  }
 }
 
 .login-button, .logout-button {

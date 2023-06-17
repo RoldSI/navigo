@@ -1,8 +1,9 @@
 <div class="header panel">
   <div class="left">
+    <img src="../../assets/navigo-logo.svg">
     <h1>Header</h1>
-
   </div>
+
   <div class="right">
     <ng-container *ngIf="loggedIn; else loggedOutTemplate">
       <button pButton pRipple label="Logout" class="logout-button p-button-danger" (click)="logout()"></button>
