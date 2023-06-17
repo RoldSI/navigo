@@ -1,5 +1,5 @@
 <div class="map-wrapper panel">
-  <google-map height="100%"
+  <google-map height="100%" #map
               width="100%"
               [center]="center"
               [zoom]="zoom"
@@ -13,17 +13,19 @@
     <map-info-window>Info Window content</map-info-window>
 
     <!-- Show Map Traffic -->
-<!--    <map-traffic-layer [autoRefresh]="false"></map-traffic-layer>-->
+    <!--    <map-traffic-layer [autoRefresh]="false"></map-traffic-layer>-->
 
     <!-- Show Transit (TODO: Check if it really works) -->
-<!--    <map-transit-layer></map-transit-layer>-->
+    <!--    <map-transit-layer></map-transit-layer>-->
 
     <!-- Show Bicycle  -->
-<!--    <map-bicycling-layer></map-bicycling-layer>-->
+    <!--    <map-bicycling-layer></map-bicycling-layer>-->
+
+    <map-polyline *ngFor="let route of routes" [path]="route.directions" [options]="route.options"></map-polyline>
 
     <!-- Show Map Direction -->
-    <map-directions-renderer *ngFor="let route of routes"
-                             [directions]="route" [options]="opts"></map-directions-renderer>
+    <!--    <map-directions-renderer *ngFor="let route of routes" [options]="testOptions"
+                                 [directions]="directions"></map-directions-renderer>-->
 
   </google-map>
 

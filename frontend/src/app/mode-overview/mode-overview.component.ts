@@ -13,37 +13,49 @@ export class ModeOverviewComponent {
       name: "Route 1",
       co2: 123,
       distance: 321,
-      time: 1
+      time: 1,
+      efficiency: 98,
+      catastrophy: 99,
     },
     {
       name: "Route 2",
       co2: 999,
       distance: 321,
-      time: 1
+      time: 1,
+      efficiency: 98,
+      catastrophy: 99,
     },
     {
       name: "Route 1",
       co2: 123,
       distance: 321,
-      time: 1
+      time: 1,
+      efficiency: 98,
+      catastrophy: 99,
     },
     {
       name: "Route 2",
       co2: 999,
       distance: 321,
-      time: 1
+      time: 1,
+      efficiency: 98,
+      catastrophy: 99,
     },
     {
       name: "Route 1",
       co2: 123,
       distance: 321,
-      time: 1
+      time: 1,
+      efficiency: 98,
+      catastrophy: 99,
     },
     {
       name: "Route 2",
       co2: 999,
       distance: 321,
-      time: 1
+      time: 1,
+      efficiency: 98,
+      catastrophy: 99,
     }
   ]
 }
