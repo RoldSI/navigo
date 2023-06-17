@@ -1,0 +1,19 @@
+.number-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .content, .unit {
+    padding: 0;
+    margin: 0;
+  }
+
+  .content {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .unit {
+    color: var(--clr-muted);
+  }
+}

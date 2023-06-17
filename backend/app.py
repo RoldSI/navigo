@@ -1,6 +1,7 @@
 from firebase_admin import auth
 from flask import Flask, jsonify, request
 import firebase_admin
+from flask_cors import CORS
 from firebase_admin import credentials, auth, firestore
 import openai
 from utils import GmapsUtils
@@ -21,7 +22,9 @@ firebaseApp = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 app = Flask(__name__)
-CORS(app)
+
+CORS(app)  # Enable CORS for all routes
+favorites = []
 
 
 def authenticate_user(bearer_token):
@@ -40,7 +43,6 @@ def authenticate_user(bearer_token):
 def add_favorite():
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    # uid = 'hoi'
     if uid is None:
         return jsonify({"error": "authentication failed"}), 401
     user_favorites_doc_ref = db.collection("favorites").document(uid)
@@ -49,14 +51,18 @@ def add_favorite():
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
+
     new_favorites = request.json['input']
+    print("FAV: ", new_favorites)
+
+
     for favorite in new_favorites:
         if favorite not in user_favorites_list:
             user_favorites_list.append(favorite)
             print(f"{favorite} added to favorites")
         else:
             print(f"{favorite} already in favorites")
+
     user_favorites_doc_ref.set({"favorites": user_favorites_list})
     return jsonify({"message": "Provided favorites added successfully"}), 200
 
@@ -74,7 +80,6 @@ def remove_favorite():
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
     remove_favorites = request.json['input']
     for favorite in remove_favorites:
         if favorite in user_favorites_list:
@@ -92,14 +97,13 @@ def get_favorites():
     uid = authenticate_user(bearer_token)
     # uid = 'hoi'
     if uid is None:
-        return jsonify({"message": "authentication failed"}), 401
+        return jsonify({"error": "authentication failed"}), 401
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
     return jsonify({"favorites": user_favorites_list}), 200
 
 
@@ -169,59 +173,77 @@ def places_autocomplete():
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
-    request_data = request.args
-    from_param = request_data.get('from')
-    to_param = request_data.get('to')
-    (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
-        from_param,
-        to_param,
+    from_loc = request.args.get("from") # get data from frontend
+    to_loc = request.args.get("to") # get data from frontend
+
+    (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'walking'
     )
-    (b_dp, b_gm, b_di, b_du) = GmapsUtils.calculate_route_gmaps(
-        from_param,
-        to_param,
+    (b_dist, b_dur, b_wp, b_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'bicycling'
     )
-    (d_dp, d_gm, d_di, d_du) = GmapsUtils.calculate_route_gmaps(
-        from_param,
-        to_param,
+    (d_dist, d_dur, d_wp, d_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'driving'
     )
-    (t_dp, t_gm, t_di, t_du) = GmapsUtils.calculate_route_gmaps(
-        from_param,
-        to_param,
+    (p_dist, p_dur, p_wp, p_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'transit'
     )
     response_data = {
         'walking': {
-            'response': w_gm,
-            'distance': w_di,  # meters
-            'duration': w_du,  # minutes
-            'decoded_points': w_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
+            'distance': w_dist,
+            'duration': w_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': ['WALKING'],
+                'geocoded_waypoints': w_wp,
+                'routes': w_r,
+            }
         },
-        'bicycling': {
-            'response': b_gm,
-            'distance': b_di,  # meters
-            'duration': b_du,  # minutes
-            'decoded_points': b_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
+        'biking': {
+            'distance': b_dist,
+            'duration': b_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': ['BICYCLING'],
+                'geocoded_waypoints': b_wp,
+                'routes': b_r,
+            }
         },
         'driving': {
-            'response': d_gm,
-            'distance': d_di,  # meters
-            'duration': d_du,  # minutes
-            'decoded_points': d_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
+            'distance': d_dist,
+            'duration': d_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': ['DRIVING'],
+                'geocoded_waypoints': d_wp,
+                'routes': d_r,
+            }
         },
-        'transit': {
-            'response': t_gm,
-            'distance': t_di,  # meters
-            'duration': t_du,  # minutes
-            'decoded_points': t_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
-        }
+        'public': {
+            'distance': p_dist,
+            'duration': p_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': ['TRANSIT'],
+                'geocoded_waypoints': p_wp,
+                'routes': p_r,
+            }
+        },
+#         'plane': {
+#             'distance': 30,  # meters
+#             'time': 30,  # minutes
+#             'efficiency': 34
+#         }
     }
+
     return jsonify(response_data)
 
 
