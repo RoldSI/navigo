@@ -38,13 +38,14 @@ export class AuthService {
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
-        // Set Token
-        this.authToken = credential?.accessToken;
-        this.setAuthTokenInCookie(this.authToken);
         // The signed-in user info.
         const user = result.user;
-        this.loggedIn$.next(true);
-        console.log(user);
+        // Set Token
+        user.getIdToken().then((token: string) => {  // <------ Check this line
+          this.authToken = token;
+          this.setAuthTokenInCookie(this.authToken);
+          this.loggedIn$.next(true);
+        });
       }).catch((error) => {
       // Handle Errors here.
       const errorCode = error.code;

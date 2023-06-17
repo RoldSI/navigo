@@ -12,10 +12,10 @@ export class AuthInterceptor implements HttpInterceptor {
     if (!this.authService.getToken()) {
       console.warn("No token!");
     }
-    console.log("Token: ", this.authService.getToken());
     req = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${this.authService.getToken()}`
+        "Content-Type": 'application/json',
+        "Authorization": `${this.authService.getToken()}`
       },
     });
 

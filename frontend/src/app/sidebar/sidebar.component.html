@@ -6,5 +6,10 @@
 
   <div class="chatgpt-suggestions panel">
     <h2>Destination Suggestions</h2>
+    <ul>
+      <li *ngFor="let suggestion of suggestions">
+        {{ suggestion.location }} ({{ suggestion.address }})
+      </li>
+    </ul>
   </div>
 </div>

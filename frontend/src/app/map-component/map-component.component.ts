@@ -85,13 +85,13 @@ export class MapComponentComponent {
   }
 
   moveMap(event: google.maps.MapMouseEvent) {
-    console.log("Move Map Event: ", event);
+    // console.log("Move Map Event: ", event);
   }
 
   move(event: google.maps.MapMouseEvent) {
-    console.log("Move Event: ", event);
-    console.log(event.latLng?.lat())
-    console.log(event.latLng?.lng())
+    // console.log("Move Event: ", event);
+    // console.log(event.latLng?.lat())
+    // console.log(event.latLng?.lng())
   }
 
   openInfoWindow(marker: MapMarker) {

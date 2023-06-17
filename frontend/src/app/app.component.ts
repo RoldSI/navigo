@@ -10,10 +10,13 @@ export class AppComponent {
   title = 'frontend';
 
   constructor(private apiService: ApiService) {
-    this.apiService.addFavorite({input: ["MyFavorite"]})
-    this.apiService.getFavorites();
-    this.apiService.getFavorites().subscribe((res) => {
+    // Example of Adding and Reading Favorites...
+    this.apiService.addFavorite({input: ["New Fav"]}).subscribe((res) => {
       console.log(res);
-    });
+
+      this.apiService.getFavorites().subscribe((res) => {
+        console.log(res);
+      });
+    })
   }
 }

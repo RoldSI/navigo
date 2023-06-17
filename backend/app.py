@@ -29,7 +29,6 @@ def authenticate_user(bearer_token):
         uid = decoded_token['uid']
         return uid
     except Exception as e:
-        print(e)
         # Authentication failed
         return None
 
@@ -49,6 +48,9 @@ def add_favorite():
         user_favorites_list = user_favorites_list["favorites"]
 
     new_favorites = request.json['input']
+    print("FAV: ", new_favorites)
+
+
     for favorite in new_favorites:
         if favorite not in user_favorites_list:
             user_favorites_list.append(favorite)
@@ -73,7 +75,6 @@ def remove_favorite():
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
     remove_favorites = request.json['input']
     for favorite in remove_favorites:
         if favorite in user_favorites_list:
@@ -88,7 +89,6 @@ def remove_favorite():
 @app.route('/api/favorites', methods=['GET'])
 def get_favorites():
     bearer_token = request.headers.get('Authorization')
-    print(bearer_token)
     uid = authenticate_user(bearer_token)
     # uid = 'hoi'
     if uid is None:
@@ -100,20 +100,23 @@ def get_favorites():
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
     return jsonify({"favorites": user_favorites_list}), 200
 
 
 @app.route('/api/suggestions', methods=['GET'])
 def generate_suggestion():
-    location = request.json['input']  # get data from frontend
+    location = request.args.get("input") # get data from frontend
+    print(location)
     message = [{"role": "user",
-                "content": f"What are some things to do in {location}? Your answer should not exceed 25 words."}]
+                "content": f"What are some things to do in {location}?
+                Your answer should not exceed 25 words, and should be json-formatted containing the
+                location and the address each."}]
     chat = openai.ChatCompletion.create(
         model="gpt-4", messages=message
     )
     reply = chat.choices[0].message.content
-    return reply
+    print("Reply: ", reply)
+    return jsonify({"places": reply})
 
 
 @app.route('/api/routes', methods=['GET'])
