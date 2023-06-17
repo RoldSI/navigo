@@ -57,8 +57,6 @@ def remove_favorite():
     else:
         return jsonify({'message': 'Invalid request'})
 
-<<<<<<< Updated upstream
-=======
 
 @app.route('/authenticate', methods=['GET'])
 def authenticate_user():
@@ -70,6 +68,5 @@ def authenticate_user():
         return 'authentication successful'
 
 
->>>>>>> Stashed changes
 if __name__ == '__main__':
     app.run()
