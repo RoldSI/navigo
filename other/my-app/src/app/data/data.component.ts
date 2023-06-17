@@ -16,7 +16,8 @@ export class DataComponent implements OnInit {
   }
 
   getData(): void {
-    this.http.get('http://localhost:5000/api/data').subscribe(
+    const data = { from: 'berlin', to: 'munich' };
+    this.http.post('http://localhost:5000/api/data', data).subscribe(
       (response) => {
         console.log(response);
         this.responseData = response;

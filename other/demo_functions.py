@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import polyline
 import folium
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -133,10 +133,18 @@ def main():
     else:
         st.write(data)
 
-@app.route('/api/data', methods=['GET'])
+@app.route('/api/data', methods=['POST'])
 def get_data():
-    data = {'message': 'Hello from the backend api data hey!'}
-    return jsonify(data)
+    data = request.get_json()
+    message_param = 'Hello from the backend api data hey!'
+    from_param = data.get('from')
+    to_param = data.get('to')
+    
+    # Your code to process the data and generate the response
+    response_data = {'from': from_param, 'to': to_param, 'message': message_param}
+    
+    
+    return jsonify(response_data)
 
 @app.route('/', methods=['GET'])
 def get_index():
