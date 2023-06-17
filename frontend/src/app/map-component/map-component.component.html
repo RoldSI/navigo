@@ -3,8 +3,27 @@
               width="100%"
               [center]="center"
               [zoom]="zoom"
-              (mapClick)="moveMap($event)"
-              (mapMousemove)="move($event)"></google-map>
+              (mapClick)="addMarker($event)"
+              (mapMousemove)="move($event)">
+
+    <map-marker #marker="mapMarker" *ngFor="let m of markers"
+                [position]="m.position"
+                (mapClick)="openInfoWindow(marker)"
+                [options]="m.options"></map-marker>
+
+    <map-info-window>Info Window content</map-info-window>
+
+    <!-- Show Map Traffic -->
+<!--    <map-traffic-layer [autoRefresh]="false"></map-traffic-layer>-->
+
+    <!-- Show Transit (TODO: Check if it really works) -->
+<!--    <map-transit-layer></map-transit-layer>-->
+
+    <!-- Show Bicycle  -->
+<!--    <map-bicycling-layer></map-bicycling-layer>-->
+
+
+  </google-map>
 
 </div>
 
