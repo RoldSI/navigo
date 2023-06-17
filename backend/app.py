@@ -150,18 +150,21 @@ def routing():
             'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
         },
         'bicycling': {
+            'response': b_gm,
             'distance': b_di,  # meters
             'duration': b_du,  # minutes
             'decoded_points': b_dp,  # array of waypoints
             'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
         },
         'driving': {
+            'response': d_gm,
             'distance': d_di,  # meters
             'duration': d_du,  # minutes
             'decoded_points': d_dp,  # array of waypoints
             'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
         },
         'transit': {
+            'response': t_gm,
             'distance': t_di,  # meters
             'duration': t_du,  # minutes
             'decoded_points': t_dp,  # array of waypoints
