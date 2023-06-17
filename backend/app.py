@@ -6,10 +6,14 @@ import openai
 from utils import GmapsUtils
 from transport_co2 import Mode #https://pypi.org/project/transport-co2/
 from dotenv import dotenv_values
+import urllib
 from flask_cors import CORS
+import requests
+import pprint
 
 env_vars = dotenv_values(".env")
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
+GMAPS_KEY = env_vars["GMAPS_KEY"]
 openai.api_key = OPENAI_API_KEY
 
 cred = credentials.Certificate('firebaseCredentials.json')
@@ -135,6 +139,7 @@ def generate_chatbot_hello():
         "intro": "Hello, I'm the AI assistant of a route planning system that considers CO2 emissions. How can I assist you today?"
     })
 
+
 @app.route('/api/efficiency_score', methods=['GET'])
 def get_environment_score():
     start = request.args.get("start")
@@ -148,6 +153,19 @@ def get_environment_score():
     )
     reply = chat.choices[0].message.content
     return reply
+
+
+@app.route('/api/places', methods=['Get'])
+def places_autocomplete():
+    input = request.args.get("input")
+    input = urllib.parse.quote(input)
+    url = f"https://maps.googleapis.com/maps/api/place/autocomplete/json?input={input}&key={GMAPS_KEY}"
+    places_response = requests.get(url).json()
+    predictions = []
+    for prediction_obj in places_response['predictions']:
+        predictions.append(prediction_obj['structured_formatting']['main_text'])
+    return jsonify(predictions)
+
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
@@ -233,6 +251,7 @@ def add_user_route():
     user_routes_collection_ref = db.collection("user").document(uid).collection("routes")
     user_routes_collection_ref.add(new_route)
     return jsonify({"message": "successfully added route to personal user routes"}), 200
+
 
 @app.route('/api/emissions', methods=['GET'])
 def calculate_emissions(distance, mode):
