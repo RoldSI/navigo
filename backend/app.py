@@ -135,6 +135,19 @@ def generate_chatbot_hello():
         "intro": "Hello, I'm the AI assistant of a route planning system that considers CO2 emissions. How can I assist you today?"
     })
 
+@app.route('/api/efficiency_score', methods=['GET'])
+def get_environment_score():
+    start = request.args.get("start")
+    end = request.args.get("end")
+    text = f"You have to travel from {start} to {end}. Please rate each method with a singular score of 0 (least likely) to 100 (most likely) which transportation you would like to take if you consider CO2 emissions and travel time. You are an environmentally friendly person, but if the travel time is long or unrealistic, you prefer faster options. The following travel methods are available: walking, bicycle, plane, car, public transportation. Give the results only (one score per travel method) back in JSON format."
+    message = [{"role": "system", "content": text}]
+
+    chat = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=message
+    )
+    reply = chat.choices[0].message.content
+    return reply
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
@@ -221,8 +234,10 @@ def add_user_route():
     user_routes_collection_ref.add(new_route)
     return jsonify({"message": "successfully added route to personal user routes"}), 200
 
-
+@app.route('/api/emissions', methods=['GET'])
 def calculate_emissions(distance, mode):
+    distance = request.args.get("distance")
+    mode = request.args.get("mode")
     if mode == "walking" or mode in "biking":
         if distance == 0:
           emissions = 0
@@ -238,7 +253,7 @@ def calculate_emissions(distance, mode):
         print("Invalid mode of transportation.")
         return None
 
-    return emissions
+    return jsonify({"emissions": emissions})
 
 
 #this method calculates an efficiency score based on time and co2 emissions
