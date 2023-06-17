@@ -8,7 +8,7 @@ from transport_co2 import Mode #https://pypi.org/project/transport-co2/
 from dotenv import dotenv_values
 import urllib
 import requests
-
+import json
 
 
 env_vars = dotenv_values(".env")
@@ -144,63 +144,71 @@ def generate_chatbot_hello():
 
 
 # @app.route('/api/efficiency_score', methods=['GET'])
-def get_environment_score(start, end, gmaps_objects):
+def get_environment_score(from_loc, to_loc, gmaps_objects):
     # start = request.args.get("start")
     # end = request.args.get("end")
     # start = "Karlsruhe HBF"
     # end = "Istanbul"
     w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r = gmaps_objects
 
-    (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
-        start,
-        end,
+    (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'walking'
     )
-    print(f"{w_dp=}")
-    (b_dp, b_gm, b_di, b_du) = GmapsUtils.calculate_route_gmaps(
-        start,
-        end,
-        'bicycling'
+    print(f"{w_dist=}")
+    (b_dist, b_dur, b_wp, b_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
+        'biking'
     )
-    (d_dp, d_gm, d_di, d_du) = GmapsUtils.calculate_route_gmaps(
-        start,
-        end,
+    print(f"{b_dist=}")
+
+    (d_dist, d_dur, d_wp, d_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'driving'
     )
-    (t_dp, t_gm, t_di, t_du) = GmapsUtils.calculate_route_gmaps(
-        start,
-        end,
+    print(f"{d_dist=}")
+
+    (p_dist, p_dur, p_wp, p_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'transit'
     )
+    print(f"{p_dist=}")
 
-    print(f"{t_dp=}")
 
-    text = f"You have to travel from {start} to {end}. Please rate each method with a singular score of 0 (least likely) to 100 (most likely) which transportation you would like to take if you consider CO2 emissions and travel time. You are an environmentally friendly person, but if the travel time is long or unrealistic, you prefer faster options. The following travel methods are available: walking, bicycle, plane, driving, public transportation. Give the results only (one score per travel method) back in JSON format."
+
+    text = f"You have to travel from {from_loc} to {to_loc}. Please rate each method with a singular score of 0 (least likely) to 100 (most likely) which transportation you would like to take if you consider CO2 emissions and travel time. You are an environmentally friendly person, but if the travel time is long or unrealistic, you prefer faster options. The following travel methods are available: walking, bicycle, driving, public_transportation, plane Give the results only (one score per travel method) back in JSON format."
     
-    if w_dp is not None:
+    if w_dist is not None:
         text += f"\nTake the following information into consideration:\n"
-        text += f"(walking distance (m), walking duration (min))={(w_di, w_du)}"
-        text += f"(public transportation distance (m), public transportation duration (min))={(t_di, t_du)}"
-        text += f"(driving distance (m), driving duration (min))={(d_di, d_du)}"
-        text += f"(bicycle distance (m), bicycle duration (min))={(b_di, b_du)}"
+        text += f"(walking distance (m), walking duration (min))={(w_dist, w_dur)}"
+        text += f"(public transportation distance (m), public transportation duration (min))={(p_dist, p_dur)}"
+        text += f"(driving distance (m), driving duration (min))={(d_dist, d_dur)}"
+        text += f"(bicycle distance (m), bicycle duration (min))={(b_dist, b_dur)}"
 
 
 
     message = [{"role": "system", "content": text}]
 
+    print(f"{message=}")
     chat = openai.ChatCompletion.create(
         # model="gpt-4",
         model="gpt-3.5-turbo",
         messages=message
     )
     reply = chat.choices[0].message.content
+
+    print(f"{reply=}")
     message.append({"role":"assistant", "content": reply})
 
     
 
     text_2 = f"Now provide a catastrophe score for how bad the climate change effects would be if the entire humanity took comparable routes every day. Give a score between 0 and 100 for each method. Give the results only (one score per travel method) in JSON format"
 
-    text_2 += f"For the method 'car', also take into consideration the amount of maneuvers (left and right turns) it would take to realize the route whilst calculating the score. Amount of manuevers for method car: {len(GmapsUtils.get_maneuvers(d_gm))}"
+    text_2 += f"For the method 'car', also take into consideration the amount of maneuvers (left and right turns) it would take to realize the route whilst calculating the score. Amount of manuevers for method car: {len(GmapsUtils.get_maneuvers(d_r))}"
     
 
     message.append({"role":"system", "content": text_2})
@@ -213,10 +221,12 @@ def get_environment_score(start, end, gmaps_objects):
     )
     reply_2 = chat_2.choices[0].message.content
 
+
     response_object = {}
-    response_object.reply_1 = reply
-    response_object.reply_2 = reply_2 
+    response_object['reply_1'] = reply
+    response_object['reply_2'] = reply_2 
     return response_object
+
 
 
 
@@ -279,11 +289,16 @@ def routing():
     gmaps_objects = (w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r)
     score_responses = get_environment_score(from_loc, to_loc, gmaps_objects)
 
+
+
+    efficiency_scores = json.loads(score_responses.get('reply_1'))
+    catastrophy_scores = json.loads(score_responses.get('reply_2'))
     response_data = {
         'walking': {
             'distance': w_dist,
             'duration': w_dur,
-            'efficiency': 100,
+            'efficiency': efficiency_scores['walking'],
+            'catastrophy': catastrophy_scores['walking'],
             'directionsResult': {
                 'available_travel_modes': ['WALKING'],
                 'geocoded_waypoints': w_wp,
@@ -293,7 +308,8 @@ def routing():
         'biking': {
             'distance': b_dist,
             'duration': b_dur,
-            'efficiency': 100,
+            'efficiency': efficiency_scores['bicycle'],
+            'catastrophy': catastrophy_scores['bicycle'],
             'directionsResult': {
                 'available_travel_modes': ['BICYCLING'],
                 'geocoded_waypoints': b_wp,
@@ -303,7 +319,8 @@ def routing():
         'driving': {
             'distance': d_dist,
             'duration': d_dur,
-            'efficiency': 100,
+            'efficiency': efficiency_scores['driving'],
+            'catastrophy': catastrophy_scores['driving'],
             'directionsResult': {
                 'available_travel_modes': ['DRIVING'],
                 'geocoded_waypoints': d_wp,
@@ -313,18 +330,18 @@ def routing():
         'public': {
             'distance': p_dist,
             'duration': p_dur,
-            'efficiency': 100,
+            'efficiency': efficiency_scores['public_transportation'],
+            'catastrophy': catastrophy_scores['public_transportation'],
             'directionsResult': {
                 'available_travel_modes': ['TRANSIT'],
                 'geocoded_waypoints': p_wp,
                 'routes': p_r,
             }
         },
-#         'plane': {
-#             'distance': 30,  # meters
-#             'time': 30,  # minutes
-#             'efficiency': 34
-#         }
+        'plane': {
+            'efficiency': efficiency_scores['plane'],
+            'catastrophy': catastrophy_scores['plane'],
+        }
     }
 
     return jsonify(response_data)
