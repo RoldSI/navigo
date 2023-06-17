@@ -1,6 +1,12 @@
-import {Component, inject} from '@angular/core';
-import {Auth, GoogleAuthProvider, signInWithPopup} from '@angular/fire/auth';
+import {Component} from '@angular/core';
+import {ApiService} from "../utils/api.service";
+import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
+import {MapRoutingService} from "../utils/map-routing.service";
 
+enum SEARCH_MODE {
+  START,
+  DESTINATION
+}
 
 @Component({
   selector: 'sidebar',
@@ -8,25 +14,53 @@ import {Auth, GoogleAuthProvider, signInWithPopup} from '@angular/fire/auth';
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent {
-  private auth: Auth = inject(Auth);
-  provider = new GoogleAuthProvider();
-  login() {
-    signInWithPopup(this.auth, this.provider)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        //const token = credential.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-        console.log(user)
-      }).catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
+  startMode: SEARCH_MODE = SEARCH_MODE.START;
+  destinationMode: SEARCH_MODE = SEARCH_MODE.START;
+  start: any;
+  destination: any;
+  startSuggestions: string[] = [];
+  destinationSuggestions: string[] = [];
+
+  public search(mode: SEARCH_MODE, event: AutoCompleteCompleteEvent): void {
+    console.log(mode, event);
+    const queryString = event.query;
+    if (mode === SEARCH_MODE.START) {
+
+    } else if (mode == SEARCH_MODE.DESTINATION) {
+
+    }
+    // this.suggestions = [...Array(10).keys()].map(item => event.query + '-' + item);
+  }
+
+  suggestions: { address: string, location: string }[] = [];
+  introText: string | undefined;
+
+  constructor(private mapRoutingService: MapRoutingService, private apiService: ApiService) {
+    this.loadInitialHelpText();
+    // TODO: Später
+    // this.loadSuggestions("Karlsruhe")
+  }
+
+  startSearch(): void {
+    this.mapRoutingService.createDirectionRequest("Karlsruhe HBF", "Durlach Bahnhof")
+  }
+
+  loadInitialHelpText(): void {
+    this.apiService.generateChatGPTIntro().subscribe((res: any) => {
+      this.introText = res.intro;
+    })
+  }
+
+  loadSuggestions(addr: string): void {
+    this.apiService.generateChatGPTSuggestion({input: addr}).subscribe((res) => {
+      const cleanedJsonString = res.places.replace(/\\n/g, '');
+      const jsonObject = JSON.parse(cleanedJsonString);
+
+      this.suggestions = Object.keys(jsonObject).map(key => {
+        return jsonObject[key];
+      });
+
+      // TODO: Emit the "address" to the Map to draw the suggestions
     })
   }
 }

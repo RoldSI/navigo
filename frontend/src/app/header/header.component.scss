@@ -7,7 +7,31 @@
   align-items: center;
   justify-content: space-between;
 
-  h1 {
-    margin: 0;
+  .left, .right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
+
+  h2 {
+    margin: 0;
+    color: gray;
+    // TODO: Does it look better?
+  }
+
+  .logo {
+    height: var(--logo-height);
+    width: auto;
+  }
+
+
+  @media screen and (max-width: 600px) {
+    .page-heading {
+      display: none;
+    }
+  }
+}
+
+.login-button, .logout-button {
+  padding: var(--default-btn-padding);
 }
