@@ -7,7 +7,7 @@ from utils import GmapsUtils
 from transport_co2 import Mode #https://pypi.org/project/transport-co2/
 from dotenv import dotenv_values
 
-env_vars = dotenv_values("../.env")
+env_vars = dotenv_values(".env")
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
 openai.api_key = OPENAI_API_KEY
 

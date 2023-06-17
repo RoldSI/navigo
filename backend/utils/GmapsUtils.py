@@ -3,7 +3,7 @@ import polyline
 from dotenv import dotenv_values
 
 
-env_vars = dotenv_values("../.env")
+env_vars = dotenv_values(".env")
 GMAPS_KEY = env_vars["GMAPS_KEY"]
 
 def calculate_route_gmaps(start, end, mode):
