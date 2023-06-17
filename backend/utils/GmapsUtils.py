@@ -21,6 +21,8 @@ def calculate_route_gmaps(start, end, mode):
     else:
         print("GMAPS FAILED")
         return None, gmaps_response, None, None
+
+
 def get_maneuvers(gmaps_response):
     routes_ct = len(gmaps_response['routes']) 
     # print(f"{routes_ct=}")

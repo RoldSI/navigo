@@ -1,4 +1,3 @@
-from firebase_admin import auth
 from flask import Flask, jsonify, request
 import firebase_admin
 from flask_cors import CORS
@@ -8,9 +7,7 @@ from utils import GmapsUtils
 from transport_co2 import Mode #https://pypi.org/project/transport-co2/
 from dotenv import dotenv_values
 import urllib
-from flask_cors import CORS
 import requests
-import pprint
 
 env_vars = dotenv_values(".env")
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
