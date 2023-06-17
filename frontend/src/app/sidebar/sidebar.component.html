@@ -24,10 +24,19 @@
 
   <div class="chatgpt-suggestions panel">
     <h2>Travel Guide</h2>
-    <ul>
-      <li *ngFor="let suggestion of suggestions">
-        {{ suggestion.location }} ({{ suggestion.address }})
-      </li>
-    </ul>
+
+    <ng-container *ngIf="suggestions.length > 0; else noSuggestions">
+      <ul>
+        <li *ngFor="let suggestion of suggestions">
+          {{ suggestion.location }} ({{ suggestion.address }})
+        </li>
+      </ul>
+    </ng-container>
+
+    <ng-template #noSuggestions>
+      <ng-container *ngIf="introText">
+        <span>{{ introText }}</span>
+      </ng-container>
+    </ng-template>
   </div>
 </div>

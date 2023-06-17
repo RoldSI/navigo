@@ -32,6 +32,7 @@ export class SidebarComponent {
   }
 
   suggestions: { address: string, location: string }[] = [];
+  introText: string | undefined;
 
   constructor(private apiService: ApiService) {
     this.loadInitialHelpText();
@@ -41,7 +42,7 @@ export class SidebarComponent {
 
   loadInitialHelpText(): void {
     this.apiService.generateChatGPTIntro().subscribe((res) => {
-      console.log(res);
+      this.introText = res.intro;
     })
   }
 
