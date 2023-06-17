@@ -9,7 +9,7 @@
         <label for="start-input">Start</label>
       </span>
 
-        <span class="p-float-label">
+      <span class="p-float-label">
         <p-autoComplete id="destination-input" [(ngModel)]="destination" [suggestions]="destinationSuggestions"
                         (completeMethod)="search(destinationMode, $event)"></p-autoComplete>
         <label for="destination-input">Destination</label>
@@ -17,7 +17,9 @@
     </div>
 
 
-    <button pButton pRipple label="Start Search" class="p-button-success search"></button>
+    <div class="search-btn-wrapper">
+      <button pButton pRipple label="Start Search" class="p-button-success search"></button>
+    </div>
   </div>
 
   <div class="chatgpt-suggestions panel">

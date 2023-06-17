@@ -5,7 +5,11 @@
   gap: var(--grid-gap);
   height: 100%;
 
-  > * {
+  .sidebar {
+    height: auto;
+  }
+
+  .chatgpt-suggestions {
     height: 100%;
   }
 
@@ -28,6 +32,13 @@
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 1fr;
     }
+  }
+
+  .search-btn-wrapper {
+    margin-top: var(--grid-gap);
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .search {
