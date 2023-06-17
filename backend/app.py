@@ -4,6 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 import openai
 from utils import GmapsUtils
+from transport_co2 import Mode #https://pypi.org/project/transport-co2/
 
 openai.api_key = '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'
 cred = credentials.Certificate('firebaseCredentials.json')
@@ -112,6 +113,24 @@ def authentication_demo():
         return 'authentication failed'
     else:
         return 'authentication successful'
+
+def calculate_emissions(distance, mode):
+    if mode == "walking" or mode in "biking":
+        if distance == 0:
+          emissions = 0
+        else:
+          emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km=distance)/25
+    elif mode == "car":
+        emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km=distance)
+    elif mode == "public_transportation":
+        emissions = Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance)
+    elif mode == "plane":
+        emissions = Mode.AIRPLANE.estimate_co2(distance_in_km=distance)
+    else:
+        print("Invalid mode of transportation.")
+        return None
+
+    return emissions
 
 
 if __name__ == '__main__':
