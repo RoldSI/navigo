@@ -377,7 +377,8 @@ def add_user_route():
         "distance": new_route['distance'],
         "efficiency": new_route['efficiency'],
         "catastrophy": new_route['catastrophy'],
-        "datetime": new_route['datetime']
+        "datetime": new_route['datetime'],
+        "mode": new_route['mode']
     }
     user_routes_collection_ref = db.collection("user").document(uid).collection("routes")
     user_routes_collection_ref.add(new_route)
