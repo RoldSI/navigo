@@ -10,10 +10,9 @@ import {BehaviorSubject} from "rxjs";
 })
 export class AuthService {
   private auth: Auth = inject(Auth);
-  provider: GoogleAuthProvider = new GoogleAuthProvider();
   private authTokenCookieName = 'authToken';
   private authToken: string | undefined;
-
+  private provider: GoogleAuthProvider = new GoogleAuthProvider();
   public loggedIn$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   constructor(private apiService: ApiService, private cookieService: CookieService) {

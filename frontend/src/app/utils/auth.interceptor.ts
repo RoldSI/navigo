@@ -9,14 +9,13 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (this.authService.getToken()) {
+    if (!this.authService.getToken()) {
       console.warn("No token!");
     }
+    console.log("Token: ", this.authService.getToken());
     req = req.clone({
       setHeaders: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${this.authService.getToken()}`,
+        Authorization: `Bearer ${this.authService.getToken()}`
       },
     });
 

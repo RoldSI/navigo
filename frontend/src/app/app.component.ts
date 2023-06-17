@@ -11,6 +11,7 @@ export class AppComponent {
 
   constructor(private apiService: ApiService) {
     this.apiService.addFavorite({input: ["MyFavorite"]})
+    this.apiService.getFavorites();
     this.apiService.getFavorites().subscribe((res) => {
       console.log(res);
     });

@@ -29,6 +29,7 @@ def authenticate_user(bearer_token):
         uid = decoded_token['uid']
         return uid
     except Exception as e:
+        print(e)
         # Authentication failed
         return None
 
@@ -37,16 +38,16 @@ def authenticate_user(bearer_token):
 def add_favorite():
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    # uid = 'hoi'
     if uid is None:
-        return 'authentication failed'
+        return jsonify({"error": "authentication failed"}), 401
+
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
+
     new_favorites = request.json['input']
     for favorite in new_favorites:
         if favorite not in user_favorites_list:
@@ -54,8 +55,9 @@ def add_favorite():
             print(f"{favorite} added to favorites")
         else:
             print(f"{favorite} already in favorites")
+
     user_favorites_doc_ref.set({"favorites": user_favorites_list})
-    return 'Provided favorites added successfully'
+    return jsonify({"message": "Provided favorites added successfully"}), 200
 
 
 @app.route('/api/favorites', methods=['DELETE'])
@@ -86,10 +88,12 @@ def remove_favorite():
 @app.route('/api/favorites', methods=['GET'])
 def get_favorites():
     bearer_token = request.headers.get('Authorization')
+    print(bearer_token)
     uid = authenticate_user(bearer_token)
     # uid = 'hoi'
     if uid is None:
-        return 'authentication failed'
+        return jsonify({"error": "authentication failed"}), 401
+
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
@@ -97,7 +101,7 @@ def get_favorites():
     else:
         user_favorites_list = user_favorites_list["favorites"]
     print(user_favorites_list)
-    return jsonify({"favorites": user_favorites_list})
+    return jsonify({"favorites": user_favorites_list}), 200
 
 
 @app.route('/api/suggestions', methods=['GET'])
