@@ -1,3 +1,4 @@
+from firebase_admin import auth
 from flask import Flask, jsonify, request
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -10,30 +11,34 @@ firebase_admin.initialize_app(cred)
 app = Flask(__name__)
 favorites = []
 
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    data = {'message': 'Hello from the backend api data!'}
-    return jsonify(data)
+
+def authenticate_user(bearer_token):
+    if bearer_token is None:
+        return None
+    try:
+        decoded_token = auth.verify_id_token(bearer_token)
+        uid = decoded_token['uid']
+        return uid
+    except Exception as e:
+        # Authentication failed
+        return None
 
 
 @app.route('/api/backend', methods=['GET'])
 def get_index():
-    data = {'message': 'Hello from the backend!'}
+    data = {'message': 'This is the Navigon-msg-code-and-create-hackathon backend!'}
     return jsonify(data)
 
 
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
-
-@app.route('/add_favorite', methods=['POST'])
+@app.route('/api/favorites/add', methods=['POST'])
 def add_favorite():
     favorite = request.json['input']
     favorites.append(favorite)
     response = {'message': 'Favorite added successfully'}
     return jsonify(response)
 
-@app.route('/remove_favorite', methods=['POST'])
+
+@app.route('/api/favorites/remove', methods=['POST'])
 def remove_favorite():
     favorite = request.json['input']
     if favorite in favorites:
@@ -69,6 +74,31 @@ def generate_suggestion():
     )
   reply = chat.choices[0].message.content
   return reply
+
+
+@app.route('/api/routes', methods=['GET'])
+def routing():
+    request_data = request.get_json()
+    print(request_data)
+    '''request_data = {
+        'from': 'Berlin',
+        'to': 'Munich',
+    }'''
+    reponse_data = {
+
+    }
+    return jsonify(reponse_data)
+
+
+@app.route('/api/authenticateDemo', methods=['GET'])
+def authentication_demo():
+    bearer_token = request.headers.get('Authorization')
+    uid = authenticate_user(bearer_token)
+    if uid is None:
+        return 'authentication failed'
+    else:
+        return 'authentication successful'
+
 
 if __name__ == '__main__':
     app.run()
