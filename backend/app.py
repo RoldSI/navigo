@@ -118,7 +118,6 @@ def generate_suggestion():
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
-    print(request.args)
     from_loc = request.args.get("from") # get data from frontend
     to_loc = request.args.get("to") # get data from frontend
 
@@ -148,7 +147,7 @@ def routing():
             'duration': w_dur,
             'efficiency': 100,
             'directionsResult': {
-                'available_travel_modes': 'WALKING',
+                'available_travel_modes': ['WALKING'],
                 'geocoded_waypoints': w_wp,
                 'routes': w_r,
             }
@@ -158,7 +157,7 @@ def routing():
             'duration': b_dur,
             'efficiency': 100,
             'directionsResult': {
-                'available_travel_modes': 'WALKING',
+                'available_travel_modes': ['BICYCLING'],
                 'geocoded_waypoints': b_wp,
                 'routes': b_r,
             }
@@ -168,7 +167,7 @@ def routing():
             'duration': d_dur,
             'efficiency': 100,
             'directionsResult': {
-                'available_travel_modes': 'WALKING',
+                'available_travel_modes': ['DRIVING'],
                 'geocoded_waypoints': d_wp,
                 'routes': d_r,
             }
@@ -178,19 +177,17 @@ def routing():
             'duration': p_dur,
             'efficiency': 100,
             'directionsResult': {
-                'available_travel_modes': 'WALKING',
+                'available_travel_modes': ['TRANSIT'],
                 'geocoded_waypoints': p_wp,
                 'routes': p_r,
             }
         },
-        'plane': {
-            'distance': 30,  # meters
-            'time': 30,  # minutes
-            'efficiency': 34
-        }
+#         'plane': {
+#             'distance': 30,  # meters
+#             'time': 30,  # minutes
+#             'efficiency': 34
+#         }
     }
-
-    print(response_data)
 
     return jsonify(response_data)
 

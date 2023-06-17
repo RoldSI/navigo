@@ -1,18 +1,49 @@
 import {Injectable, NgZone} from '@angular/core';
-import {combineLatest, combineLatestWith, from, map, Observable, switchMap} from "rxjs";
+import {combineLatest, from, map, Observable, Subject, switchMap} from "rxjs";
 import {MapDirectionsResponse, MapGeocoder, MapGeocoderResponse} from "@angular/google-maps";
 import {createLatLngLiteral} from "./map-utils";
+import {ApiService} from "./api.service";
 import LatLngLiteral = google.maps.LatLngLiteral;
+
+
+export type RouteDirectionResult = {
+  directionsResult: google.maps.DirectionsResult,
+  mode: google.maps.TravelMode,
+  distance: string;
+  duration: string;
+  efficiency: number;
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class MapRoutingService {
+  private routeSubject: Subject<RouteDirectionResult[]>;
+  public route$: Observable<RouteDirectionResult[]>;
+
   private _directionsService: google.maps.DirectionsService | undefined;
 
-  constructor(private readonly _ngZone: NgZone, private readonly geocoder: MapGeocoder) {
+  constructor(private readonly _ngZone: NgZone, private readonly geocoder: MapGeocoder, private apiService: ApiService) {
+    this.routeSubject = new Subject<RouteDirectionResult[]>();
+    this.route$ = this.routeSubject.asObservable();
   }
 
+  createDirectionRequest(source: string, dest: string): void {
+    this.apiService.getRoutes({from: source, to: dest}).subscribe((res) => {
+      const obj: RouteDirectionResult[] = []
+      for (const key in res) {
+        if (res.hasOwnProperty(key)) {
+          const value = res[key];
+          obj.push({
+            ...value,
+            mode: google.maps.TravelMode.TRANSIT,
+          })
+        }
+      }
+      this.routeSubject.next(obj)
+    });
+  }
 
   /**
    * Use it like "this.directionsResults$ = service.createDirectionRequest(...).pipe(map(response => response.result));"
@@ -20,9 +51,10 @@ export class MapRoutingService {
    * @param destination
    * @param travelMode
    */
-  createDirectionRequest(start: LatLngLiteral, destination: LatLngLiteral, travelMode: google.maps.TravelMode) : Observable<undefined | google.maps.DirectionsResult>;
-  createDirectionRequest(start: string, destination: string, travelMode: google.maps.TravelMode) : Observable<undefined | google.maps.DirectionsResult>;
-  createDirectionRequest(start: LatLngLiteral | string, destination: LatLngLiteral | string, travelMode: google.maps.TravelMode):  Observable<undefined | google.maps.DirectionsResult> {
+
+  createTmpRequest(start: LatLngLiteral, destination: LatLngLiteral, travelMode: google.maps.TravelMode): Observable<undefined | google.maps.DirectionsResult>;
+  createTmpRequest(start: string, destination: string, travelMode: google.maps.TravelMode): Observable<undefined | google.maps.DirectionsResult>;
+  createTmpRequest(start: LatLngLiteral | string, destination: LatLngLiteral | string, travelMode: google.maps.TravelMode): Observable<undefined | google.maps.DirectionsResult> {
     const start$: Observable<LatLngLiteral> = (typeof start === 'string') ? this.addressToLatLng(start) : from([start]);
     const destination$: Observable<LatLngLiteral> = (typeof destination === 'string') ? this.addressToLatLng(destination) : from([destination]);
 
@@ -34,10 +66,10 @@ export class MapRoutingService {
           travelMode: travelMode as google.maps.TravelMode
         };
         return this.route(request).pipe(map((res: MapDirectionsResponse) => {
-          if(res.status !== google.maps.DirectionsStatus.OK) {
+          if (res.status !== google.maps.DirectionsStatus.OK) {
             console.warn("Route from  ", origin, " to ", destination, " couldn't be resolved!");
             return undefined;
-          } else if(res.result?.routes.length === 0) {
+          } else if (res.result?.routes.length === 0) {
             console.warn("Route from  ", origin, " to ", destination, " couldn't be find!");
             return undefined;
           } else {

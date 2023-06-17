@@ -1,8 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {MapInfoWindow, MapMarker} from "@angular/google-maps";
-import {MapRoutingService} from "../utils/map-routing.service";
+import {MapRoutingService, RouteDirectionResult} from "../utils/map-routing.service";
 import {MarkerBuilder, MarkerType} from "../utils/marker-builder";
-import {Observable} from "rxjs";
 
 
 @Component({
@@ -50,38 +49,64 @@ export class MapComponentComponent {
       .subscribe((res: google.maps.LatLngLiteral) => {
         this.markers.push(new MarkerBuilder().setDefaultIconSymbol(MarkerType.Information).setPosition(res).buildMarker());
       });
+    /*
+        this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
+          this.MSG_ADDRESS,
+          google.maps.TravelMode.DRIVING)
+          .subscribe((res: google.maps.DirectionsResult | undefined) => {
+            if (res === undefined) return;
+            // this.res = res;
+          })
 
-    this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
-      this.MSG_ADDRESS,
-      google.maps.TravelMode.DRIVING)
-      .subscribe((res: google.maps.DirectionsResult | undefined) => {
-        if (res === undefined) return;
-        // this.res = res;
-      })
+        this.bicycleRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
+          this.MSG_ADDRESS,
+          google.maps.TravelMode.BICYCLING);
 
-    this.bicycleRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
-      this.MSG_ADDRESS,
-      google.maps.TravelMode.BICYCLING);
+        this.carRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
+          this.MSG_ADDRESS,
+          google.maps.TravelMode.DRIVING);
 
-    this.carRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
-      this.MSG_ADDRESS,
-      google.maps.TravelMode.DRIVING);
-
-    this.transitRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
-      this.MSG_ADDRESS,
-      google.maps.TravelMode.TRANSIT);
+        this.transitRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
+          this.MSG_ADDRESS,
+          google.maps.TravelMode.TRANSIT);*/
   }
 
-  transitRes$: Observable<google.maps.DirectionsResult | undefined>;
-  bicycleRes$: Observable<google.maps.DirectionsResult | undefined>;
-  carRes$: Observable<google.maps.DirectionsResult | undefined>;
+  routes: google.maps.DirectionsResult[] = [];
+
+
   opts: google.maps.DirectionsRendererOptions = {
     polylineOptions: {
       strokeColor: "red",
     }
   }
 
+
   ngOnInit(): void {
+    this.mapRoutingService.createTmpRequest("Karlsruhe HBF", "Durlach Bahnhof", google.maps.TravelMode.WALKING).subscribe((res) => {
+      console.log("RES: ", res)
+    });
+
+    this.mapRoutingService.route$.subscribe((res: RouteDirectionResult[]) => {
+      res.forEach((r: RouteDirectionResult) => {
+        const newRoutes:  google.maps.DirectionsRoute[] = []
+        r.directionsResult.routes.forEach((route: google.maps.DirectionsRoute) => {
+          console.log(route);
+
+          // @ts-ignore
+          route.bounds.north = route.bounds.northeast.lat;
+          // @ts-ignore
+          route.bounds.east = route.bounds.northeast.lng;
+          // @ts-ignore
+          route.bounds.sout = route.bounds.southwest.lat;
+          // @ts-ignore
+          route.bounds.west = route.bounds.southwest.lng;
+          newRoutes.push(route);
+        })
+        r.directionsResult.routes = newRoutes;
+        console.log(r.directionsResult);
+        this.routes.push(r.directionsResult);
+      })
+    })
   }
 
   moveMap(event: google.maps.MapMouseEvent) {

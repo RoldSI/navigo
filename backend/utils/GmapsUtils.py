@@ -17,7 +17,7 @@ def calculate_route_gmaps(start, end, mode):
         distance = route["legs"][0]["distance"]["text"]
         duration = route["legs"][0]["duration"]["text"]
         
-        return distance, duration, waypoints, route
+        return distance, duration, waypoints, routes
     else:
         print("GMAPS FAILED")
         return None, gmaps_response, None, None

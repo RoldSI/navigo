@@ -22,15 +22,8 @@
 <!--    <map-bicycling-layer></map-bicycling-layer>-->
 
     <!-- Show Map Direction -->
-    <map-directions-renderer *ngIf="(carRes$ | async) as directionsResults"
-                             [directions]="directionsResults" [options]="opts"></map-directions-renderer>
-
-    <map-directions-renderer *ngIf="(transitRes$ | async) as directionsResults"
-                             [directions]="directionsResults"></map-directions-renderer>
-
-    <map-directions-renderer *ngIf="(bicycleRes$ | async) as directionsResults"
-                             [directions]="directionsResults"></map-directions-renderer>
-
+    <map-directions-renderer *ngFor="let route of routes"
+                             [directions]="route" [options]="opts"></map-directions-renderer>
 
   </google-map>
 

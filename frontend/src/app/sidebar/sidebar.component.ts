@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {ApiService} from "../utils/api.service";
 import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
+import {MapRoutingService} from "../utils/map-routing.service";
 
 enum SEARCH_MODE {
   START,
@@ -34,20 +35,18 @@ export class SidebarComponent {
   suggestions: { address: string, location: string }[] = [];
   introText: string | undefined;
 
-  constructor(private apiService: ApiService) {
+  constructor(private mapRoutingService: MapRoutingService, private apiService: ApiService) {
     this.loadInitialHelpText();
     // TODO: Später
     // this.loadSuggestions("Karlsruhe")
   }
 
   startSearch(): void {
-    this.apiService.getRoutes({from: "Karlsruhe HBF", to: "Durlach Bahnhof"}).subscribe((res) => {
-      console.log(res);
-    })
+    this.mapRoutingService.createDirectionRequest("Karlsruhe HBF", "Durlach Bahnhof")
   }
 
   loadInitialHelpText(): void {
-    this.apiService.generateChatGPTIntro().subscribe((res) => {
+    this.apiService.generateChatGPTIntro().subscribe((res: any) => {
       this.introText = res.intro;
     })
   }
