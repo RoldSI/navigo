@@ -28,14 +28,14 @@ def hello_world():  # put application's code here
 
 @app.route('/add_favorite', methods=['POST'])
 def add_favorite():
-    favorite = request.json()
+    favorite = request.json['input']
     favorites.append(favorite)
     response = {'message': 'Favorite added successfully'}
     return jsonify(response)
 
 @app.route('/remove_favorite', methods=['POST'])
 def remove_favorite():
-    favorite = request.json()
+    favorite = request.json['input']
     if favorite in favorites:
         favorites.remove(favorite)
         response = {'message': 'Favorite removed successfully'}
