@@ -5,7 +5,6 @@ from dotenv import dotenv_values
 
 env_vars = dotenv_values("../.env")
 GMAPS_KEY = env_vars["GMAPS_KEY"]
-GRAPHHOPPER_API_KEY = env_vars["GRAPHHOPPER_API_KEY"]
 
 def calculate_route_gmaps(start, end, mode):
     url = f"https://maps.googleapis.com/maps/api/directions/json?origin={start}&destination={end}&mode={mode}&key={GMAPS_KEY}"

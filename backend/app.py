@@ -4,8 +4,12 @@ import firebase_admin
 from firebase_admin import credentials, auth
 import openai
 from utils import GmapsUtils
+from dotenv import dotenv_values
 
-openai.api_key = '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'
+env_vars = dotenv_values("../.env")
+OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
+
+openai.api_key = OPENAI_API_KEY
 cred = credentials.Certificate('firebaseCredentials.json')
 firebase_admin.initialize_app(cred)
 
