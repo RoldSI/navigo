@@ -1,13 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
-import {MapGeocoderResponse, MapInfoWindow, MapMarker} from "@angular/google-maps";
+import {MapInfoWindow, MapMarker} from "@angular/google-maps";
 import {MapRoutingService} from "../utils/map-routing.service";
+import {MarkerBuilder, MarkerType} from "../utils/marker-builder";
+import {Observable} from "rxjs";
 
-declare const google: any;
-
-type Marker = {
-  options: google.maps.MarkerOptions,
-  position: google.maps.LatLngLiteral
-}
 
 @Component({
   selector: 'map-component',
@@ -20,53 +16,72 @@ export class MapComponentComponent {
   /**
    * Center of the Map
    */
-  center: google.maps.LatLngLiteral = {lat: 24, lng: 12};
+  center: google.maps.LatLngLiteral = {
+    lat: 51.10866477980172,
+    lng: 10.49393043114157
+  }
 
   /**
    * Default Map Zoom
    */
-  zoom = 4;
+  zoom = 6;
 
   /**
    * Display
    */
   display: google.maps.LatLngLiteral | undefined;
 
-  markers: Marker[] = [];
+  markers: google.maps.MarkerOptions[] = [];
   // markerOptions: google.maps.MarkerOptions = {draggable: false};
   // markerPositions: google.maps.LatLngLiteral[] = [];
 
-  createDefaultMarker(pos: google.maps.LatLngLiteral): Marker {
-    return this.createMarker(pos,
-      {
-        draggable: false
+  private readonly MSG_ADDRESS: string = "Am Großmarkt 10, 76137 Karlsruhe";
+  private readonly HOTEL_ADDRESS: string = "Zimmerstraße 8, 76137 Karlsruhe";
+
+  constructor(private readonly mapRoutingService: MapRoutingService) {
+    // Create Favorite-Marker for the MSG-Address
+    this.mapRoutingService.addressToLatLng(this.MSG_ADDRESS)
+      .subscribe((res: google.maps.LatLngLiteral) => {
+        this.markers.push(new MarkerBuilder().setDefaultIconSymbol(MarkerType.Favorite).setPosition(res).buildMarker());
+      });
+
+    // Create Information-Marker for the Hotel Address
+    this.mapRoutingService.addressToLatLng(this.HOTEL_ADDRESS)
+      .subscribe((res: google.maps.LatLngLiteral) => {
+        this.markers.push(new MarkerBuilder().setDefaultIconSymbol(MarkerType.Information).setPosition(res).buildMarker());
+      });
+
+    this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
+      this.MSG_ADDRESS,
+      google.maps.TravelMode.DRIVING)
+      .subscribe((res: google.maps.DirectionsResult | undefined) => {
+        if (res === undefined) return;
+        // this.res = res;
       })
+
+    this.bicycleRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
+      this.MSG_ADDRESS,
+      google.maps.TravelMode.BICYCLING);
+
+    this.carRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
+      this.MSG_ADDRESS,
+      google.maps.TravelMode.DRIVING);
+
+    this.transitRes$ = this.mapRoutingService.createDirectionRequest(this.HOTEL_ADDRESS,
+      this.MSG_ADDRESS,
+      google.maps.TravelMode.TRANSIT);
   }
 
-  createMarker(pos: google.maps.LatLngLiteral, options: google.maps.MarkerOptions): Marker {
-    return {
-      position: pos,
-      options: options
+  transitRes$: Observable<google.maps.DirectionsResult | undefined>;
+  bicycleRes$: Observable<google.maps.DirectionsResult | undefined>;
+  carRes$: Observable<google.maps.DirectionsResult | undefined>;
+  opts: google.maps.DirectionsRendererOptions = {
+    polylineOptions: {
+      strokeColor: "red",
     }
   }
 
-  constructor(private readonly mapRoutingService: MapRoutingService) {
-    this.mapRoutingService.addressStringToLatLang('Am Großmarkt 10, 76137 Karlsruhe')
-      .subscribe((results: MapGeocoderResponse) => {
-        const res = results.results[0];
-        this.center = {
-          lat: res.geometry.location.lat(),
-          lng: res.geometry.location.lng()
-        };
-        this.zoom = 15;
-        this.markers.push(this.createDefaultMarker(this.center));
-
-        // this.center = results[0];
-      });
-  }
-
   ngOnInit(): void {
-
   }
 
   moveMap(event: google.maps.MapMouseEvent) {
@@ -75,6 +90,8 @@ export class MapComponentComponent {
 
   move(event: google.maps.MapMouseEvent) {
     console.log("Move Event: ", event);
+    console.log(event.latLng?.lat())
+    console.log(event.latLng?.lng())
   }
 
   openInfoWindow(marker: MapMarker) {
@@ -83,7 +100,9 @@ export class MapComponentComponent {
 
   addMarker(event: google.maps.MapMouseEvent) {
     if (event.latLng) {
-      this.markers.push(this.createDefaultMarker(event.latLng.toJSON()));
+      this.markers.push(new MarkerBuilder()
+        .setDefaultIconSymbol(MarkerType.Default)
+        .setPosition(event.latLng.toJSON()).buildMarker());
     }
   }
 }
