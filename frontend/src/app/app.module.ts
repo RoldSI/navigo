@@ -21,6 +21,8 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AuthService} from "./utils/auth.service";
 import {ApiService} from "./utils/api.service";
 import {AuthInterceptor} from "./utils/auth.interceptor";
+import {AutoCompleteModule} from "primeng/autocomplete";
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -35,6 +37,7 @@ import {AuthInterceptor} from "./utils/auth.interceptor";
   imports: [
     BrowserModule,
     GoogleMapsModule,
+    FormsModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     ButtonModule,
@@ -42,6 +45,7 @@ import {AuthInterceptor} from "./utils/auth.interceptor";
     RippleModule,
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideAuth(() => getAuth()),
+    AutoCompleteModule,
   ],
   providers: [
     AuthService,

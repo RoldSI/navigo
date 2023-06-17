@@ -1,6 +1,11 @@
 import {Component} from '@angular/core';
 import {ApiService} from "../utils/api.service";
+import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
 
+enum SEARCH_MODE {
+  START,
+  DESTINATION
+}
 
 @Component({
   selector: 'sidebar',
@@ -8,10 +13,36 @@ import {ApiService} from "../utils/api.service";
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent {
+  startMode: SEARCH_MODE = SEARCH_MODE.START;
+  destinationMode: SEARCH_MODE = SEARCH_MODE.START;
+  start: any;
+  destination: any;
+  startSuggestions: string[] = [];
+  destinationSuggestions: string[] = [];
+
+  public search(mode: SEARCH_MODE, event: AutoCompleteCompleteEvent): void {
+    console.log(mode, event);
+    const queryString = event.query;
+    if (mode === SEARCH_MODE.START) {
+
+    } else if (mode == SEARCH_MODE.DESTINATION) {
+
+    }
+    // this.suggestions = [...Array(10).keys()].map(item => event.query + '-' + item);
+  }
+
   suggestions: { address: string, location: string }[] = [];
 
   constructor(private apiService: ApiService) {
-    this.loadSuggestions("Karlsruhe")
+    this.loadInitialHelpText();
+    // TODO: Später
+    // this.loadSuggestions("Karlsruhe")
+  }
+
+  loadInitialHelpText(): void {
+    this.apiService.generateChatGPTIntro().subscribe((res) => {
+      console.log(res);
+    })
   }
 
   loadSuggestions(addr: string): void {

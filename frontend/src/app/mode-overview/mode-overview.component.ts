@@ -20,6 +20,30 @@ export class ModeOverviewComponent {
       co2: 999,
       distance: 321,
       time: 1
+    },
+    {
+      name: "Route 1",
+      co2: 123,
+      distance: 321,
+      time: 1
+    },
+    {
+      name: "Route 2",
+      co2: 999,
+      distance: 321,
+      time: 1
+    },
+    {
+      name: "Route 1",
+      co2: 123,
+      distance: 321,
+      time: 1
+    },
+    {
+      name: "Route 2",
+      co2: 999,
+      distance: 321,
+      time: 1
     }
   ]
 }

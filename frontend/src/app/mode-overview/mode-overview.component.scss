@@ -1,5 +1,7 @@
 .mode-overview {
   height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .route-eval-wrapper {

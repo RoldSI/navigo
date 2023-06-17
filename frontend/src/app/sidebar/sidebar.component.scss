@@ -8,4 +8,43 @@
   > * {
     height: 100%;
   }
+
+  .start-destination-wrapper {
+    --dist: 1.5rem;
+    display: grid;
+    margin-top: var(--dist);
+    gap: var(--dist);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+
+    ::ng-deep .p-autocomplete-input, ::ng-deep .p-autocomplete {
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: 1000px) {
+    .start-destination-wrapper {
+      --dist: .5rem;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+  }
+
+  .search {
+    padding: var(--default-btn-padding);
+  }
+
+}
+
+
+@media screen and (max-width: 800px) {
+  .sidebar-wrapper {
+    flex-direction: row;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .sidebar-wrapper {
+    flex-direction: column;
+  }
 }

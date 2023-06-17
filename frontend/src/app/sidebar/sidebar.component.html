@@ -2,10 +2,26 @@
   <div class="sidebar panel">
     <h2>Route Selection</h2>
 
+    <div class="start-destination-wrapper">
+      <span class="p-float-label">
+        <p-autoComplete id="start-input" [(ngModel)]="start" [suggestions]="startSuggestions"
+                        (completeMethod)="search(startMode, $event)"></p-autoComplete>
+        <label for="start-input">Start</label>
+      </span>
+
+        <span class="p-float-label">
+        <p-autoComplete id="destination-input" [(ngModel)]="destination" [suggestions]="destinationSuggestions"
+                        (completeMethod)="search(destinationMode, $event)"></p-autoComplete>
+        <label for="destination-input">Destination</label>
+      </span>
+    </div>
+
+
+    <button pButton pRipple label="Start Search" class="p-button-success search"></button>
   </div>
 
   <div class="chatgpt-suggestions panel">
-    <h2>Destination Suggestions</h2>
+    <h2>Travel Guide</h2>
     <ul>
       <li *ngFor="let suggestion of suggestions">
         {{ suggestion.location }} ({{ suggestion.address }})

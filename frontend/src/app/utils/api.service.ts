@@ -39,7 +39,7 @@ export class ApiService {
     return this.http.get<any>(`${environment.apiBase}/suggestions`, {params: input});
   }
 
-  generateChatGPTIntro(input: InputObjectString): Observable<any> {
+  generateChatGPTIntro(): Observable<any> {
     return this.http.get<any>(`${environment.apiBase}/intro`);
   }
 
