@@ -6,6 +6,7 @@ import openai
 from utils import GmapsUtils
 from transport_co2 import Mode #https://pypi.org/project/transport-co2/
 from dotenv import dotenv_values
+from flask_cors import CORS
 
 env_vars = dotenv_values(".env")
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
@@ -16,6 +17,7 @@ firebaseApp = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 app = Flask(__name__)
+CORS(app)
 
 
 def authenticate_user(bearer_token):
@@ -36,7 +38,7 @@ def add_favorite():
     uid = authenticate_user(bearer_token)
     # uid = 'hoi'
     if uid is None:
-        return 'authentication failed'
+        return jsonify({"error": "authentication failed"}), 401
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
@@ -52,7 +54,7 @@ def add_favorite():
         else:
             print(f"{favorite} already in favorites")
     user_favorites_doc_ref.set({"favorites": user_favorites_list})
-    return 'Provided favorites added successfully'
+    return jsonify({"message": "Provided favorites added successfully"}), 200
 
 
 @app.route('/api/favorites', methods=['DELETE'])
@@ -61,7 +63,7 @@ def remove_favorite():
     uid = authenticate_user(bearer_token)
     # uid = 'hoi'
     if uid is None:
-        return 'authentication failed'
+        return jsonify({"message": "authentication failed"}), 401
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
@@ -77,7 +79,7 @@ def remove_favorite():
         else:
             print(f"{favorite} not in favorites")
     user_favorites_doc_ref.set({"favorites": user_favorites_list})
-    return 'Provided favorites removed successfully'
+    return jsonify({"message": "Provided favorites removed successfully"}), 200
 
 
 @app.route('/api/favorites', methods=['GET'])
@@ -86,7 +88,7 @@ def get_favorites():
     uid = authenticate_user(bearer_token)
     # uid = 'hoi'
     if uid is None:
-        return 'authentication failed'
+        return jsonify({"message": "authentication failed"}), 401
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
@@ -94,29 +96,45 @@ def get_favorites():
     else:
         user_favorites_list = user_favorites_list["favorites"]
     print(user_favorites_list)
-    return jsonify({"favorites": user_favorites_list})
+    return jsonify({"favorites": user_favorites_list}), 200
 
 
 @app.route('/api/suggestions', methods=['GET'])
 def generate_suggestion():
-    location = request.json['input']  # get data from frontend
+    location = request.args.get("input")
+    #location = request.json['input']  # get data from frontend
     message = [{"role": "user",
-                "content": f"What are some things to do in {location}? Your answer should not exceed 25 words."}]
-    chat = openai.ChatCompletion.create(
+                "content": f"What are some things to do in {location}? Your answer should not exceed 25 words, and should be json-formatted containing the location and the address each."}]
+    # actual version
+    '''chat = openai.ChatCompletion.create(
         model="gpt-4", messages=message
     )
     reply = chat.choices[0].message.content
-    return reply
+    print(reply)
+    return jsonify({"places": reply})'''
+    # dummy because we're poor
+    return jsonify(
+        {
+            "places": "{\n  \"1\": {\"location\": \"ZKM | Center for Art and Media\", \"address\": \"Lorenzstr. 19, 76135 Karlsruhe\"},\n  \"2\": {\"location\": \"Karlsruhe Palace\", \"address\": \"Schloßbezirk 10, 76131 Karlsruhe\"},\n  \"3\": {\"location\": \"Botanical Gardens\", \"address\": \"Ernst-Friedrich-Platz 5, 76133 Karlsruhe\"}\n}"
+        }
+    )
+
 
 @app.route('/api/intro', methods=['GET'])
 def generate_chatbot_hello():
     message = [{"role": "user",
                 "content": f"You are the assistant of a route planing system for transportation which considers co2 emissions. Say hello to it, introduce yourself Your answer should not exceed 25 words."}]
-    chat = openai.ChatCompletion.create(
+    # actual stuff
+    '''chat = openai.ChatCompletion.create(
         model="gpt-3.5-turbo", messages=message
     )
     reply = chat.choices[0].message.content
-    return reply
+    return jsonify({"intro": reply})'''
+    # dummy because we're poor
+    return jsonify({
+        "intro": "Hello, I'm the AI assistant of a route planning system that considers CO2 emissions. How can I assist you today?"
+    })
+
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
@@ -180,9 +198,9 @@ def routing():
 def get_user_routes():
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    uid = 'hihoho'
+    # uid = 'hihoho'
     if uid is None:
-        return 'authentication failed'
+        return jsonify({"message": "authentication failed"}), 401
     user_favorites_doc_ref = db.collection("user").document(uid)
     user_routes_collection_stream = user_favorites_doc_ref.collection("routes").stream()
     user_routes_collection = []
@@ -195,23 +213,13 @@ def get_user_routes():
 def add_user_route():
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    uid = 'hihoho'
+    # uid = 'hihoho'
     if uid is None:
-        return 'authentication failed'
+        return jsonify({"message": "authentication failed"}), 401
     new_route = request.json
     user_routes_collection_ref = db.collection("user").document(uid).collection("routes")
     user_routes_collection_ref.add(new_route)
-    return 'successfully added route to personal user routes'
-
-
-@app.route('/api/authenticateDemo', methods=['GET'])
-def authentication_demo():
-    bearer_token = request.headers.get('Authorization')
-    uid = authenticate_user(bearer_token)
-    if uid is None:
-        return 'authentication failed'
-    else:
-        return 'authentication successful'
+    return jsonify({"message": "successfully added route to personal user routes"}), 200
 
 
 def calculate_emissions(distance, mode):
