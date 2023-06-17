@@ -1,4 +1,61 @@
-.sidebar {
-  width: var(--sidebar-width);
+.sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--grid-gap);
   height: 100%;
+
+  .sidebar {
+    height: auto;
+  }
+
+  .chatgpt-suggestions {
+    height: 100%;
+  }
+
+  .start-destination-wrapper {
+    --dist: 1.5rem;
+    display: grid;
+    margin-top: var(--dist);
+    gap: var(--dist);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+
+    ::ng-deep .p-autocomplete-input, ::ng-deep .p-autocomplete {
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: 1000px) {
+    .start-destination-wrapper {
+      --dist: .5rem;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+  }
+
+  .search-btn-wrapper {
+    margin-top: var(--grid-gap);
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .search {
+    padding: var(--default-btn-padding);
+  }
+
+}
+
+
+@media screen and (max-width: 800px) {
+  .sidebar-wrapper {
+    flex-direction: row;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .sidebar-wrapper {
+    flex-direction: column;
+  }
 }

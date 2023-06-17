@@ -1,15 +1,20 @@
 :root {
-  --sidebar-width: 200px;
   --header-height: 50px;
   --default-margin: .3rem;
   --default-padding: .75rem;
+  --default-btn-padding: .3rem .6rem;
   --default-border-radius: .75rem;
   --grid-gap: .5rem;
+  --logo-height: 30px;
 
-  --clr-bg-primary: #f0f0f0;
+  --clr-msg: #A01441;
+
+  --default-border: 1px solid var(--clr-border-primary);
+
+  --clr-bg-primary: #f4f4f4;
   --clr-bg-secondary: #ffffff;
-  --clr-border-primary: #d2d2d2;
-
+  --clr-border-primary: #c8c8c8;
+  --clr-muted: #787878;
 
 }
 
@@ -18,10 +23,29 @@
 body {
   padding: 0;
   margin: 0;
+  font-family: BlinkMacSystemFont, -apple-system, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, Helvetica, Arial, sans-serif, BlinkMacSystemFont, -apple-system, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+h1 {
+  color: var(--clr-msg);
+  font-size: 36px;
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  font-size: 20px;
+  color: var(--clr-msg);
+  margin: 0 0 1rem;
+  padding: 0;
 }
 
 .panel {
   background-color: var(--clr-bg-secondary);
   border-radius: var(--default-border-radius);
   padding: var(--default-padding);
+  border: var(--default-border);
+  box-shadow: 0 2px 5px 1px rgba(64, 60, 67, .1);
+  width: 100%;
 }

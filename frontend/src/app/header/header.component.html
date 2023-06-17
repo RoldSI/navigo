@@ -1,9 +1,18 @@
 <div class="header panel">
   <div class="left">
-    <h1>Header</h1>
-
+    <img src="../../assets/navigo-logo.svg" class="logo" alt="Navigo Logo">
   </div>
+
+  <h2 class="page-heading">CO2-Friendly Traveling Portal</h2>
+
   <div class="right">
-    Test
+    <ng-container *ngIf="loggedIn; else loggedOutTemplate">
+      <button pButton pRipple label="Logout" class="logout-button p-button-danger" (click)="logout()"></button>
+    </ng-container>
+
+    <ng-template #loggedOutTemplate>
+      <!-- Display the login button -->
+      <button pButton pRipple label="Login" class="login-button p-button-primary" (click)="login()"></button>
+    </ng-template>
   </div>
 </div>

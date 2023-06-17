@@ -1,5 +1,42 @@
-<div class="sidebar panel">
+<div class="sidebar-wrapper">
+  <div class="sidebar panel">
+    <h2>Route Selection</h2>
 
-  <button pButton pRipple label="Login" class="p-button-primary" (click)="login()"></button>
+    <div class="start-destination-wrapper">
+      <span class="p-float-label">
+        <p-autoComplete id="start-input" [(ngModel)]="start" [suggestions]="startSuggestions"
+                        (completeMethod)="search(startMode, $event)"></p-autoComplete>
+        <label for="start-input">Start</label>
+      </span>
 
+      <span class="p-float-label">
+        <p-autoComplete id="destination-input" [(ngModel)]="destination" [suggestions]="destinationSuggestions"
+                        (completeMethod)="search(destinationMode, $event)"></p-autoComplete>
+        <label for="destination-input">Destination</label>
+      </span>
+    </div>
+
+
+    <div class="search-btn-wrapper">
+      <button pButton pRipple label="Start Search" class="p-button-success search" (click)="startSearch()"></button>
+    </div>
+  </div>
+
+  <div class="chatgpt-suggestions panel">
+    <h2>Travel Guide</h2>
+
+    <ng-container *ngIf="suggestions.length > 0; else noSuggestions">
+      <ul>
+        <li *ngFor="let suggestion of suggestions">
+          {{ suggestion.location }} ({{ suggestion.address }})
+        </li>
+      </ul>
+    </ng-container>
+
+    <ng-template #noSuggestions>
+      <ng-container *ngIf="introText">
+        <span>{{ introText }}</span>
+      </ng-container>
+    </ng-template>
+  </div>
 </div>

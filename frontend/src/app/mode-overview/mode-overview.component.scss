@@ -1,0 +1,13 @@
+.mode-overview {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.route-eval-wrapper {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: var(--grid-gap);
+}
+

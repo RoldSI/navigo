@@ -1,33 +1,19 @@
-from firebase_admin import auth
 from flask import Flask, jsonify, request
 import firebase_admin
+from flask_cors import CORS
 from firebase_admin import credentials, auth, firestore
 import openai
 from utils import GmapsUtils
 from transport_co2 import Mode #https://pypi.org/project/transport-co2/
 from dotenv import dotenv_values
-from flask_cors import CORS
+import urllib
+import requests
 
-w_dp = None
-w_gm = None
-w_di = None
-w_du = None
-b_dp = None
-b_gm = None
-b_di = None
-b_du = None
-d_dp = None
-d_gm = None
-d_di = None
-d_du = None
-t_dp = None
-t_gm = None
-t_di = None
-t_du = None
 
 
 env_vars = dotenv_values(".env")
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
+GMAPS_KEY = env_vars["GMAPS_KEY"]
 openai.api_key = OPENAI_API_KEY
 
 cred = credentials.Certificate('firebaseCredentials.json')
@@ -35,7 +21,9 @@ firebaseApp = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 app = Flask(__name__)
-CORS(app)
+
+CORS(app)  # Enable CORS for all routes
+favorites = []
 
 
 def authenticate_user(bearer_token):
@@ -54,7 +42,6 @@ def authenticate_user(bearer_token):
 def add_favorite():
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    # uid = 'hoi'
     if uid is None:
         return jsonify({"error": "authentication failed"}), 401
     user_favorites_doc_ref = db.collection("favorites").document(uid)
@@ -63,14 +50,18 @@ def add_favorite():
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
+
     new_favorites = request.json['input']
+    print("FAV: ", new_favorites)
+
+
     for favorite in new_favorites:
         if favorite not in user_favorites_list:
             user_favorites_list.append(favorite)
             print(f"{favorite} added to favorites")
         else:
             print(f"{favorite} already in favorites")
+
     user_favorites_doc_ref.set({"favorites": user_favorites_list})
     return jsonify({"message": "Provided favorites added successfully"}), 200
 
@@ -88,7 +79,6 @@ def remove_favorite():
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
     remove_favorites = request.json['input']
     for favorite in remove_favorites:
         if favorite in user_favorites_list:
@@ -106,14 +96,13 @@ def get_favorites():
     uid = authenticate_user(bearer_token)
     # uid = 'hoi'
     if uid is None:
-        return jsonify({"message": "authentication failed"}), 401
+        return jsonify({"error": "authentication failed"}), 401
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-    print(user_favorites_list)
     return jsonify({"favorites": user_favorites_list}), 200
 
 
@@ -153,12 +142,14 @@ def generate_chatbot_hello():
         "intro": "Hello, I'm the AI assistant of a route planning system that considers CO2 emissions. How can I assist you today?"
     })
 
-@app.route('/api/efficiency_score', methods=['GET'])
-def get_environment_score():
-    start = request.args.get("start")
-    end = request.args.get("end")
+
+# @app.route('/api/efficiency_score', methods=['GET'])
+def get_environment_score(start, end, gmaps_objects):
+    # start = request.args.get("start")
+    # end = request.args.get("end")
     # start = "Karlsruhe HBF"
     # end = "Istanbul"
+    w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r = gmaps_objects
 
     (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
         start,
@@ -225,7 +216,7 @@ def get_environment_score():
     response_object = {}
     response_object.reply_1 = reply
     response_object.reply_2 = reply_2 
-    return jsonify(response_object)
+    return response_object
 
 
 
@@ -242,66 +233,100 @@ def get_response(message):
     return response.choices[0]["message"]["content"]
 
 
----
 
+
+
+@app.route('/api/places', methods=['Get'])
+def places_autocomplete():
+    input = request.args.get("input")
+    input = urllib.parse.quote(input)
+    url = f"https://maps.googleapis.com/maps/api/place/autocomplete/json?input={input}&key={GMAPS_KEY}"
+    places_response = requests.get(url).json()
+    predictions = []
+    for prediction_obj in places_response['predictions']:
+        predictions.append(prediction_obj['structured_formatting']['main_text'])
+    return jsonify(predictions)
 
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
-    # global w_dp, w_gm, w_di, w_du, b_dp, b_gm, b_di, b_du, d_dp, d_gm, d_di, d_du, t_dp, t_gm, t_di, t_du
-    request_data = request.args
-    from_param = request_data.get('from')
-    to_param = request_data.get('to')
-    (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
-        from_param,
-        to_param,
+    from_loc = request.args.get("from") # get data from frontend
+    to_loc = request.args.get("to") # get data from frontend
+
+    (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'walking'
     )
-    (b_dp, b_gm, b_di, b_du) = GmapsUtils.calculate_route_gmaps(
-        from_param,
-        to_param,
+    (b_dist, b_dur, b_wp, b_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'bicycling'
     )
-    (d_dp, d_gm, d_di, d_du) = GmapsUtils.calculate_route_gmaps(
-        from_param,
-        to_param,
+    (d_dist, d_dur, d_wp, d_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'driving'
     )
-    (t_dp, t_gm, t_di, t_du) = GmapsUtils.calculate_route_gmaps(
-        from_param,
-        to_param,
+    (p_dist, p_dur, p_wp, p_r) = GmapsUtils.calculate_route_gmaps(
+        from_loc,
+        to_loc,
         'transit'
     )
+
+    
+
+    gmaps_objects = (w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r)
+    score_responses = get_environment_score(from_loc, to_loc, gmaps_objects)
+
     response_data = {
         'walking': {
-            'response': w_gm,
-            'distance': w_di,  # meters
-            'duration': w_du,  # minutes
-            'decoded_points': w_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
+            'distance': w_dist,
+            'duration': w_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': ['WALKING'],
+                'geocoded_waypoints': w_wp,
+                'routes': w_r,
+            }
         },
-        'bicycling': {
-            'response': b_gm,
-            'distance': b_di,  # meters
-            'duration': b_du,  # minutes
-            'decoded_points': b_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
+        'biking': {
+            'distance': b_dist,
+            'duration': b_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': ['BICYCLING'],
+                'geocoded_waypoints': b_wp,
+                'routes': b_r,
+            }
         },
         'driving': {
-            'response': d_gm,
-            'distance': d_di,  # meters
-            'duration': d_du,  # minutes
-            'decoded_points': d_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
+            'distance': d_dist,
+            'duration': d_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': ['DRIVING'],
+                'geocoded_waypoints': d_wp,
+                'routes': d_r,
+            }
         },
-        'transit': {
-            'response': t_gm,
-            'distance': t_di,  # meters
-            'duration': t_du,  # minutes
-            'decoded_points': t_dp,  # array of waypoints
-            'efficiency': 100  # (1)/((time * factor) * (co2 * factor))
-        }
+        'public': {
+            'distance': p_dist,
+            'duration': p_dur,
+            'efficiency': 100,
+            'directionsResult': {
+                'available_travel_modes': ['TRANSIT'],
+                'geocoded_waypoints': p_wp,
+                'routes': p_r,
+            }
+        },
+#         'plane': {
+#             'distance': 30,  # meters
+#             'time': 30,  # minutes
+#             'efficiency': 34
+#         }
     }
+
     return jsonify(response_data)
 
 
@@ -331,6 +356,7 @@ def add_user_route():
     user_routes_collection_ref = db.collection("user").document(uid).collection("routes")
     user_routes_collection_ref.add(new_route)
     return jsonify({"message": "successfully added route to personal user routes"}), 200
+
 
 @app.route('/api/emissions', methods=['GET'])
 def calculate_emissions(distance, mode):
