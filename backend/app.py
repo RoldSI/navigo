@@ -61,15 +61,44 @@ def generate_suggestion():
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
-    request_data = request.args
-    '''request_data = {
+    #request_data = request.args
+    #from_param = request_data.get('from')
+    #to_param = request_data.get('to')
+    request_data = {
         'from': 'Berlin',
         'to': 'Munich',
-    }'''
-    response_data = {
-
     }
-    return jsonify(reponse_data)
+    response_data = {
+        'walking': {
+            'distance': 30, # meters
+            'duration': 30, # minutes
+            'decoded_points': [ # array of waypoints
+
+            ],
+            'efficiency': 34 # (1)/((time * factor) * (co2 * factor))
+        },
+        'biking': {
+            'distance': 30,  # meters
+            'time': 30,  # minutes
+            'efficiency': 34
+        },
+        'driving': {
+            'distance': 30,  # meters
+            'time': 30,  # minutes
+            'efficiency': 34
+        },
+        'public': {
+            'distance': 30,  # meters
+            'time': 30,  # minutes
+            'efficiency': 34
+        },
+        'plane': {
+            'distance': 30,  # meters
+            'time': 30,  # minutes
+            'efficiency': 34
+        }
+    }
+    return jsonify(response_data)
 
 
 @app.route('/api/authenticateDemo', methods=['GET'])
