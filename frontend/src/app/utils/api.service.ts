@@ -22,7 +22,6 @@ export class ApiService {
 
   addFavorite(input: InputObjectStringList): Observable<any> {
     // const options = this.getRequestOptions();
-    console.log("add favorite: ", input);
     return this.http.post<any>(`${environment.apiBase}/favorites`, input);
   }
 
@@ -31,12 +30,15 @@ export class ApiService {
   }
 
   getFavorites(): Observable<any> {
-    console.log("get favorites");
     return this.http.get<any>(`${environment.apiBase}/favorites`);
   }
 
   generateChatGPTSuggestion(input: InputObjectString): Observable<any> {
     return this.http.get<any>(`${environment.apiBase}/suggestions`, {params: input});
+  }
+
+  getAutocompleteSuggestions(input: InputObjectString): Observable<any> {
+    return this.http.get<any>(`${environment.apiBase}/places`, {params: input});
   }
 
   generateChatGPTIntro(): Observable<any> {
