@@ -7,9 +7,8 @@
               (mapMousemove)="move($event)">
 
     <map-marker #marker="mapMarker" *ngFor="let m of markers"
-                [position]="m.position"
                 (mapClick)="openInfoWindow(marker)"
-                [options]="m.options"></map-marker>
+                [options]="m"></map-marker>
 
     <map-info-window>Info Window content</map-info-window>
 
@@ -22,6 +21,9 @@
     <!-- Show Bicycle  -->
 <!--    <map-bicycling-layer></map-bicycling-layer>-->
 
+    <!-- Show Map Direction -->
+    <map-directions-renderer *ngFor="let route of routes"
+                             [directions]="route" [options]="opts"></map-directions-renderer>
 
   </google-map>
 

@@ -3,19 +3,38 @@ h1 {
 }
 
 .layout {
-  width: 100vw;
+  max-width: 100vw;
   height: 100vh;
   padding: var(--grid-gap);
   margin: 0;
   background-color: var(--clr-bg-primary);
 
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  grid-template-rows: auto 1fr 1fr;
   grid-template-areas:
-    "sidebar header"
-    "sidebar content";
+    "header header header"
+    "sidebar mode-overview map"
+    "sidebar mode-overview map";
   gap: var(--grid-gap);
+}
+
+@media screen and (max-width: 800px) {
+  .layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto 1fr 1fr 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar sidebar"
+      "mode-overview mode-overview"
+      "map map";
+  }
+}
+
+
+.mode-overview {
+  grid-area: mode-overview
 }
 
 .sidebar {
@@ -27,6 +46,6 @@ h1 {
 }
 
 .map-component {
-  grid-area: content;
+  grid-area: map;
 }
 
