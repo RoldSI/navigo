@@ -6,7 +6,7 @@ cred = credentials.Certificate('firebaseCredentials.json')
 firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
-
+favorites = []
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
@@ -24,6 +24,28 @@ def get_index():
 def hello_world():  # put application's code here
     return 'Hello World!'
 
+@app.route('/api/favorites/add', methods=['POST'])
+def add_favorite():
+    data = request.get_json()
+    if 'favorite' in data:
+        favorite = data['favorite']
+        favorites.append(favorite)
+        return jsonify({'message': 'Favorite added successfully'})
+    else:
+        return jsonify({'message': 'Invalid request'})
+
+@app.route('/api/favorites/remove', methods=['POST'])
+def remove_favorite():
+    data = request.get_json()
+    if 'favorite' in data:
+        favorite = data['favorite']
+        if favorite in favorites:
+            favorites.remove(favorite)
+            return jsonify({'message': 'Favorite removed successfully'})
+        else:
+            return jsonify({'message': 'Favorite not found'})
+    else:
+        return jsonify({'message': 'Invalid request'})
 
 @app.route('/authenticate', methods=['GET'])
 def authenticate_user():
