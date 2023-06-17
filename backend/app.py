@@ -108,6 +108,15 @@ def generate_suggestion():
     reply = chat.choices[0].message.content
     return reply
 
+@app.route('/api/suggestions', methods=['GET'])
+def generate_chatbot_hello():
+    message = [{"role": "user",
+                "content": f"You are the assistant of a route planing system for transportation which considers co2 emissions. Say hello to it, introduce yourself Your answer should not exceed 25 words."}]
+    chat = openai.ChatCompletion.create(
+        model="gpt-4", messages=message
+    )
+    reply = chat.choices[0].message.content
+    return reply
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
@@ -222,6 +231,27 @@ def calculate_emissions(distance, mode):
         return None
 
     return emissions
+
+#this method calculates an efficiency score based on time and co2 emissions
+def calculate_efficiency(distance, travel_mode, min_travel_time, max_travel_time, travel_time):
+    min_co2_emissions = min(Mode.SMALL_CAR.estimate_co2(distance_in_km=distance)/25, Mode.SMALL_CAR.estimate_co2(distance_in_km=distance), 
+                          Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance), Mode.AIRPLANE.estimate_co2(distance_in_km=distance))
+    max_co2_emissions = max(Mode.SMALL_CAR.estimate_co2(distance_in_km=distance)/25, Mode.SMALL_CAR.estimate_co2(distance_in_km=distance), 
+                          Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance), Mode.AIRPLANE.estimate_co2(distance_in_km=distance))
+    
+    #we have to invert the travel time -> the shorter the better
+    normalized_travel_time = 1 - (travel_time - min_travel_time) / (max_travel_time - min_travel_time)
+    
+    #we have to invert the emissions -> the lower the better
+    co2_emissions = calculate_emissions(distance, travel_mode)
+    normalized_co2_emissions = 1 - (co2_emissions - min_co2_emissions) / (max_co2_emissions - min_co2_emissions)
+    
+    #here we set the weights, which is more important to us. in total they should sum up to 
+    travel_time_weight = 0.6
+    co2_emissions_weight = 0.4
+
+    efficiency_score = (normalized_travel_time * travel_time_weight + normalized_co2_emissions * co2_emissions_weight) * 100
+    return efficiency_score
 
 
 if __name__ == '__main__':
