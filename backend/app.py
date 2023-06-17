@@ -143,6 +143,7 @@ def routing():
     )
     response_data = {
         'walking': {
+            'response': w_gm,
             'distance': w_di,  # meters
             'duration': w_du,  # minutes
             'decoded_points': w_dp,  # array of waypoints
