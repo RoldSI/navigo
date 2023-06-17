@@ -373,6 +373,8 @@ def add_user_route():
     new_route = {
         "from": new_route['from'],
         "to": new_route['to'],
+        "duration": new_route['duration'],
+        "distance": new_route['distance'],
         "efficiency": new_route['efficiency'],
         "catastrophy": new_route['catastrophy'],
         "datetime": new_route['datetime']
