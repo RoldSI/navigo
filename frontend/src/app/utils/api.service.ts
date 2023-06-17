@@ -39,6 +39,10 @@ export class ApiService {
     return this.http.get<any>(`${environment.apiBase}/suggestions`, {params: input});
   }
 
+  generateChatGPTIntro(input: InputObjectString): Observable<any> {
+    return this.http.get<any>(`${environment.apiBase}/intro`);
+  }
+
   getRoutes(): Observable<any> {
     // const options = this.getRequestOptions();
     return this.http.get<any>(`${environment.apiBase}/routes`);
