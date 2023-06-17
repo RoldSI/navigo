@@ -1,18 +1,26 @@
 
-from GmapsUtils import calculate_route_gmaps
+from GmapsUtils import calculate_route_gmaps, get_maneuvers
 import pprint
 import sys
 import os
-def predictAndDescribeClimate(distance, duration):
-    print(f"{distance=} {duration=}")
+def predictAndDescribeClimate(distance, duration, mode):
+    if mode == "transit":
+        print(f"{distance=} {duration=} {mode=}")
 
 
-
+    else:
+        raise NotImplementedError
+    
 
 if __name__ == "__main__":
-    decoded_points, gmaps_response, distance, duration = calculate_route_gmaps("Berlin%20Hauptbahnhof", "Karlsruhe%20Hauptbahnhof", 
-                          "public")
-    
+
+    # mode = "walking"
+    mode = "transit"
+    decoded_points, gmaps_response, distance, duration = calculate_route_gmaps("Berlin", "Karlsruhe%20Hauptbahnhof", mode)
+
+    maneuvers = get_maneuvers(gmaps_response)
+    print(maneuvers)
+
 
     # Open the file in write mode
     file_path = './documents/gmaps_response.txt' 
@@ -29,5 +37,4 @@ if __name__ == "__main__":
 
 
     if decoded_points: # meaning gmaps did return some OK response
-        predictAndDescribeClimate(distance, duration)
-
+        predictAndDescribeClimate(distance, duration, mode)
