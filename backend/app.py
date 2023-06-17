@@ -16,7 +16,6 @@ firebaseApp = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 app = Flask(__name__)
-favorites = []
 
 
 def authenticate_user(bearer_token):
@@ -114,13 +113,7 @@ def generate_suggestion():
 def routing():
     request_data = request.args
     from_param = request_data.get('from')
-    print(from_param)
     to_param = request_data.get('to')
-    print(to_param)
-    '''request_data = {
-        'from': 'Berlin',
-        'to': 'Munich',
-    }'''
     (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
         from_param,
         to_param,
@@ -174,6 +167,34 @@ def routing():
     return jsonify(response_data)
 
 
+@app.route('/api/user/routes', methods=['GET'])
+def get_user_routes():
+    bearer_token = request.headers.get('Authorization')
+    uid = authenticate_user(bearer_token)
+    uid = 'hihoho'
+    if uid is None:
+        return 'authentication failed'
+    user_favorites_doc_ref = db.collection("user").document(uid)
+    user_routes_collection_stream = user_favorites_doc_ref.collection("routes").stream()
+    user_routes_collection = []
+    for user_route in user_routes_collection_stream:
+        user_routes_collection.append(user_route.to_dict())
+    return jsonify(user_routes_collection)
+
+
+@app.route('/api/user/routes', methods=['POST'])
+def add_user_route():
+    bearer_token = request.headers.get('Authorization')
+    uid = authenticate_user(bearer_token)
+    uid = 'hihoho'
+    if uid is None:
+        return 'authentication failed'
+    new_route = request.json
+    user_routes_collection_ref = db.collection("user").document(uid).collection("routes")
+    user_routes_collection_ref.add(new_route)
+    return 'successfully added route to personal user routes'
+
+
 @app.route('/api/authenticateDemo', methods=['GET'])
 def authentication_demo():
     bearer_token = request.headers.get('Authorization')
@@ -182,6 +203,7 @@ def authentication_demo():
         return 'authentication failed'
     else:
         return 'authentication successful'
+
 
 def calculate_emissions(distance, mode):
     if mode == "walking" or mode in "biking":
