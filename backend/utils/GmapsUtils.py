@@ -11,8 +11,8 @@ def calculate_route_gmaps(start, end, mode):
     gmaps_response = requests.get(url).json()
     if gmaps_response["status"] == "OK":
         route = gmaps_response["routes"][0]
-        distance = route["legs"][0]["distance"]["text"]
-        duration = route["legs"][0]["duration"]["text"]
+        distance = route["legs"][0]["distance"]["value"]
+        duration = route["legs"][0]["duration"]["value"]
         
 
         polyline_points = route["overview_polyline"]["points"]
