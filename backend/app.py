@@ -28,8 +28,11 @@ def authenticate_user(bearer_token):
 @app.route('/api/favorites', methods=['POST'])
 def add_favorite():
     favorite = request.json['input']
-    favorites.append(favorite)
-    response = {'message': 'Favorite added successfully'}
+    if favorite in favorites:
+        response = {'message': 'Favorite already contained'}
+    else:
+        favorites.append(favorite)
+        response = {'message': 'Favorite added successfully'}
     return jsonify(response)
 
 
