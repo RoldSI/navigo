@@ -8,6 +8,24 @@ from transport_co2 import Mode #https://pypi.org/project/transport-co2/
 from dotenv import dotenv_values
 from flask_cors import CORS
 
+w_dp = None
+w_gm = None
+w_di = None
+w_du = None
+b_dp = None
+b_gm = None
+b_di = None
+b_du = None
+d_dp = None
+d_gm = None
+d_di = None
+d_du = None
+t_dp = None
+t_gm = None
+t_di = None
+t_du = None
+
+
 env_vars = dotenv_values(".env")
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
 openai.api_key = OPENAI_API_KEY
@@ -139,18 +157,98 @@ def generate_chatbot_hello():
 def get_environment_score():
     start = request.args.get("start")
     end = request.args.get("end")
-    text = f"You have to travel from {start} to {end}. Please rate each method with a singular score of 0 (least likely) to 100 (most likely) which transportation you would like to take if you consider CO2 emissions and travel time. You are an environmentally friendly person, but if the travel time is long or unrealistic, you prefer faster options. The following travel methods are available: walking, bicycle, plane, car, public transportation. Give the results only (one score per travel method) back in JSON format."
+    # start = "Karlsruhe HBF"
+    # end = "Istanbul"
+
+    (w_dp, w_gm, w_di, w_du) = GmapsUtils.calculate_route_gmaps(
+        start,
+        end,
+        'walking'
+    )
+    print(f"{w_dp=}")
+    (b_dp, b_gm, b_di, b_du) = GmapsUtils.calculate_route_gmaps(
+        start,
+        end,
+        'bicycling'
+    )
+    (d_dp, d_gm, d_di, d_du) = GmapsUtils.calculate_route_gmaps(
+        start,
+        end,
+        'driving'
+    )
+    (t_dp, t_gm, t_di, t_du) = GmapsUtils.calculate_route_gmaps(
+        start,
+        end,
+        'transit'
+    )
+
+    print(f"{t_dp=}")
+
+    text = f"You have to travel from {start} to {end}. Please rate each method with a singular score of 0 (least likely) to 100 (most likely) which transportation you would like to take if you consider CO2 emissions and travel time. You are an environmentally friendly person, but if the travel time is long or unrealistic, you prefer faster options. The following travel methods are available: walking, bicycle, plane, driving, public transportation. Give the results only (one score per travel method) back in JSON format."
+    
+    if w_dp is not None:
+        text += f"\nTake the following information into consideration:\n"
+        text += f"(walking distance (m), walking duration (min))={(w_di, w_du)}"
+        text += f"(public transportation distance (m), public transportation duration (min))={(t_di, t_du)}"
+        text += f"(driving distance (m), driving duration (min))={(d_di, d_du)}"
+        text += f"(bicycle distance (m), bicycle duration (min))={(b_di, b_du)}"
+
+
+
     message = [{"role": "system", "content": text}]
 
     chat = openai.ChatCompletion.create(
-        model="gpt-4",
+        # model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=message
     )
     reply = chat.choices[0].message.content
-    return reply
+    message.append({"role":"assistant", "content": reply})
+
+    
+
+    text_2 = f"Now provide a catastrophe score for how bad the climate change effects would be if the entire humanity took comparable routes every day. Give a score between 0 and 100 for each method. Give the results only (one score per travel method) in JSON format"
+
+    text_2 += f"For the method 'car', also take into consideration the amount of maneuvers (left and right turns) it would take to realize the route whilst calculating the score. Amount of manuevers for method car: {len(GmapsUtils.get_maneuvers(d_gm))}"
+    
+
+    message.append({"role":"system", "content": text_2})
+
+    chat_2 = openai.ChatCompletion.create(
+        # model="gpt-4",
+        model="gpt-3.5-turbo",
+
+        messages=message
+    )
+    reply_2 = chat_2.choices[0].message.content
+
+    response_object = {}
+    response_object.reply_1 = reply
+    response_object.reply_2 = reply_2 
+    return jsonify(response_object)
+
+
+
+
+def get_response(message):
+    
+    response = openai.ChatCompletion.create(
+        model = 'gpt-3.5-turbo',
+        temperature = 1,
+        messages = [
+            {"role": "user", "content": message}
+        ]
+    )
+    return response.choices[0]["message"]["content"]
+
+
+---
+
+
 
 @app.route('/api/routes', methods=['GET'])
 def routing():
+    # global w_dp, w_gm, w_di, w_du, b_dp, b_gm, b_di, b_du, d_dp, d_gm, d_di, d_du, t_dp, t_gm, t_di, t_du
     request_data = request.args
     from_param = request_data.get('from')
     to_param = request_data.get('to')
