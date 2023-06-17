@@ -2,6 +2,7 @@ import firebase from 'firebase/compat/app';
 
 export const environment = {
   production: false,
+  apiBase: "http://127.0.0.1:5000/api",
   firebaseConfig: {
     apiKey: "AIzaSyCdiv7LqYCzc6CDCD5pbjvo5sKpm1vpJ1U",
     authDomain: "navigo-msg-hackathon.firebaseapp.com",

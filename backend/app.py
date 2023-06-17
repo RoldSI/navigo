@@ -1,6 +1,7 @@
 from firebase_admin import auth
 from flask import Flask, jsonify, request
 import firebase_admin
+from flask_cors import CORS
 from firebase_admin import credentials, auth, firestore
 import openai
 from utils import GmapsUtils
@@ -16,6 +17,7 @@ firebaseApp = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 favorites = []
 
 

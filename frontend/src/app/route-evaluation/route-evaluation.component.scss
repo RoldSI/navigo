@@ -1,0 +1,19 @@
+.route-eval {
+  padding: 0;
+}
+
+.heading {
+  padding: var(--default-padding);
+  padding-bottom: calc(0.5 * var(--default-padding));
+  border-bottom: 1px solid var(--clr-border-primary);
+}
+
+.indicators {
+  padding: var(--default-padding);
+  padding-top: calc(0.5 + var(--default-padding));
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

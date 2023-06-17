@@ -1,0 +1,14 @@
+<div class="panel route-eval" *ngIf="routeEval">
+  <header class="heading">
+    {{routeEval.name}}
+  </header>
+
+  <article class="indicators">
+    <number-indicator [content]="routeEval.distance" unit="km" ></number-indicator>
+    <number-indicator [content]="routeEval.time" unit="km" ></number-indicator>
+    <number-indicator [content]="routeEval.co2" unit="km" ></number-indicator>
+  </article>
+
+</div>
+
+

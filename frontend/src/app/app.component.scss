@@ -10,12 +10,17 @@ h1 {
   background-color: var(--clr-bg-primary);
 
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-columns: repeat(3, 33%);
+  grid-template-rows: auto 1fr 1fr;
   grid-template-areas:
-    "sidebar header"
-    "sidebar content";
+    "header header header"
+    "sidebar mode-overview map"
+    "sidebar mode-overview map";
   gap: var(--grid-gap);
+}
+
+.mode-overview {
+  grid-area: mode-overview
 }
 
 .sidebar {
@@ -27,6 +32,6 @@ h1 {
 }
 
 .map-component {
-  grid-area: content;
+  grid-area: map;
 }
 

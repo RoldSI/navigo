@@ -1,4 +1,11 @@
-.sidebar {
-  width: var(--sidebar-width);
+.sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--grid-gap);
   height: 100%;
+
+  > * {
+    height: 100%;
+  }
 }
