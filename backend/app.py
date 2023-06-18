@@ -30,116 +30,133 @@ favorites = []
 
 # Utility function to authenticate/validate a user based on some provided token with 
 def authenticate_user(bearer_token):
+    # Catch case of None token
     if bearer_token is None:
         return None
     try:
+        # Validate token with firebase
         decoded_token = auth.verify_id_token(bearer_token)
         uid = decoded_token['uid']
+        # return the user id for identification of the user
         return uid
     except Exception as e:
-        # Authentication failed
+        # Authentication failed: return None for according handling
         return None
 
 
+# For a logged-in user, add favorite locations
 @app.route('/api/favorites', methods=['POST'])
 def add_favorite():
+    # Do user authentication based on bearer token
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
     if uid is None:
         return jsonify({"error": "authentication failed"}), 401
+    # Load user favorites from database
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
-
+    # Load new favorites from the request
     new_favorites = request.json['input']
-    print("FAV: ", new_favorites)
-
+    # Add new favorites to the database object
     for favorite in new_favorites:
+        # Skip the favorite if already exists to avoid doubled favorites
         if favorite not in user_favorites_list:
             user_favorites_list.append(favorite)
             print(f"{favorite} added to favorites")
         else:
             print(f"{favorite} already in favorites")
-
+    # Store the database object back to the database
     user_favorites_doc_ref.set({"favorites": user_favorites_list})
     return jsonify({"message": "Provided favorites added successfully"}), 200
 
 
+# For a logged-in user, remove a location from favorites
 @app.route('/api/favorites', methods=['DELETE'])
 def remove_favorite():
+    # User authentication
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    # uid = 'hoi'
     if uid is None:
         return jsonify({"message": "authentication failed"}), 401
+    # Get the user favorites from the database
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
+    # Get the to be removed favorites from the request
     remove_favorites = request.json['input']
+    # Remove those favorites from the database object
     for favorite in remove_favorites:
+        # Skip the to-be removed favorite if not a current favorite
         if favorite in user_favorites_list:
             user_favorites_list.remove(favorite)
             print(f"{favorite} removed from favorites")
         else:
             print(f"{favorite} not in favorites")
+    # Store updated database object back to the database
     user_favorites_doc_ref.set({"favorites": user_favorites_list})
     return jsonify({"message": "Provided favorites removed successfully"}), 200
 
 
+# For logged-in user, get current favorite places
 @app.route('/api/favorites', methods=['GET'])
 def get_favorites():
+    # User authentication
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    # uid = 'hoi'
     if uid is None:
         return jsonify({"error": "authentication failed"}), 401
+    # Get database favorites connection
     user_favorites_doc_ref = db.collection("favorites").document(uid)
     user_favorites_list = user_favorites_doc_ref.get().to_dict()
     if user_favorites_list is None:
         user_favorites_list = []
     else:
         user_favorites_list = user_favorites_list["favorites"]
+    # Return the database connection
     return jsonify({"favorites": user_favorites_list}), 200
 
 
+# Providing AI-based travel/experience suggestions for the route
 @app.route('/api/suggestions', methods=['GET'])
 def generate_suggestion():
+    # Read target location from the request
     location = request.args.get("input")
+    # Create request for GPT
     message = [{"role": "user",
                 "content": f"What are some things to do in {location}? Your answer should not exceed 25 words, and should be json-formatted containing the location and the address each."}]
+    # Use GPT to get recommendations
     chat = openai.ChatCompletion.create(
         model="gpt-4", messages=message
     )
     reply = chat.choices[0].message.content
-    print(reply)
+    # Return recommendations
     return jsonify({"places": reply})
 
 
+# Use AI to make a unqiue/custom greetion
 @app.route('/api/intro', methods=['GET'])
 def generate_chatbot_hello():
+    # Create the GPT request message
     message = [{"role": "user",
                 "content": f"You are the assistant of a route planing system for transportation which considers co2 emissions. Say hello to the user, introduce yourself as the user's travel advisor. Your answer should not exceed 25 words."}]
+    # Run the GPT query
     chat = openai.ChatCompletion.create(
         model="gpt-3.5-turbo", messages=message
     )
+    # Return the custom greeting to the frontend
     reply = chat.choices[0].message.content
     return jsonify({"intro": reply})
 
 
-# @app.route('/api/efficiency_score', methods=['GET'])
+# Compute environment scores for given routes
 def get_environment_score(from_loc, to_loc, gmaps_objects):
-    # start = request.args.get("start")
-    # end = request.args.get("end")
-    # start = "Karlsruhe HBF"
-    # end = "Istanbul"
-    w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r = gmaps_objects
-
     (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
         from_loc,
         to_loc,
