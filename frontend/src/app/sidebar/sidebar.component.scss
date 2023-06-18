@@ -14,7 +14,7 @@
   }
 
   .start-destination-wrapper {
-    --dist: 1.5rem;
+    --dist: 1rem;
     display: grid;
     margin-top: var(--dist);
     gap: var(--dist);
@@ -28,7 +28,7 @@
 
   @media screen and (max-width: 1000px) {
     .start-destination-wrapper {
-      --dist: .5rem;
+      --dist: 1.5rem;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 1fr;
     }

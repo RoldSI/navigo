@@ -5,8 +5,8 @@
     <p class="content" [style.color]="color" *ngSwitchDefault>{{ content }}</p>
   </ng-container>
   <ng-container [ngSwitch]="formattingMode">
-    <p class="content" *ngSwitchCase="'distance'">{{ content | distanceUnit }}</p>
-    <p class="content" *ngSwitchCase="'time'">{{ content | timeUnit }}</p>
-    <p class="content" *ngSwitchDefault>{{ unit }}</p>
+    <p class="unit" *ngSwitchCase="'distance'">{{ content | distanceUnit }}</p>
+    <p class="unit" *ngSwitchCase="'time'">{{ content | timeUnit }}</p>
+    <p class="unit" *ngSwitchDefault>{{ unit }}</p>
   </ng-container>
 </div>
