@@ -45,6 +45,9 @@ export class MapComponentComponent {
   private readonly HOTEL_ADDRESS: string = "Zimmerstraße 8, 76137 Karlsruhe";
 
   constructor(private readonly mapRoutingService: MapRoutingService, private readonly mapService: MapService) {
+  }
+
+  private getDefaultMarkers() {
     // Create Favorite-Marker for the MSG-Address
     this.mapRoutingService.addressToLatLng(this.MSG_ADDRESS)
       .subscribe((res: google.maps.LatLngLiteral) => {
@@ -68,6 +71,10 @@ export class MapComponentComponent {
 
   ngOnInit(): void {
     this.mapRoutingService.route$.subscribe((res: RouteDirectionResult[]) => {
+      this.routes = [];
+      this.markers = [];
+      this.getDefaultMarkers();
+
       res.forEach((r: any) => {
         this.startLocation = r.directionsResult.routes[0].legs[0].start_location;
         this.destinationLocation = r.directionsResult.routes[0].legs[0].end_location;
@@ -87,6 +94,7 @@ export class MapComponentComponent {
             dirs.push(new LatLng(createLatLngLiteral(p[0], p[1])))
           })
         });
+
 
         this.routes.push({
           directions: dirs,
