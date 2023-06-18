@@ -45,13 +45,18 @@ export class SidebarComponent {
     })
   }
 
-  checkInvalid(): void {
-    this.startInvalid = !this.start;
-    this.destinationInvalid = !this.destination;
+  checkInvalid(checkPositiveOnly: boolean = true): void {
+    if (checkPositiveOnly) {
+      if (this.startInvalid) this.startInvalid = !this.start;
+      if (this.destinationInvalid) this.destinationInvalid = !this.start;
+    } else {
+      this.startInvalid = !this.start;
+      this.destinationInvalid = !this.destination;
+    }
   }
 
   startSearch(): void {
-    this.checkInvalid();
+    this.checkInvalid(false);
     if (this.startInvalid || this.destinationInvalid) return;
     this.mapRoutingService.createDirectionRequest(this.start, this.destination);
   }

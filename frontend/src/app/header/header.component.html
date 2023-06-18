@@ -36,14 +36,14 @@
       <!-- Add columns with appropriate field bindings -->
       <ng-template pTemplate="header">
         <tr>
-          <th class="table-heading">
-            Ranking
+          <th pSortableColumn="ranking">Ranking
+            <p-sortIcon field="ranking"></p-sortIcon>
           </th>
-          <th class="table-heading">
-            Username
+          <th pSortableColumn="username">Username
+            <p-sortIcon field="username"></p-sortIcon>
           </th>
-          <th class="table-heading">
-            Efficiency Score
+          <th pSortableColumn="efficiencyScore">Efficiency Score
+            <p-sortIcon field="efficiencyScore"></p-sortIcon>
           </th>
         </tr>
       </ng-template>

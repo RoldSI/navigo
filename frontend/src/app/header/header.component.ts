@@ -3,7 +3,6 @@ import {AuthService} from "../utils/auth.service";
 import {ApiService} from '../utils/api.service';
 import {ColormapService} from "../utils/color.service";
 import {MapRoutingService} from "../utils/map-routing.service";
-import {Table} from "primeng/table";
 
 @Component({
   selector: 'app-header',
