@@ -199,6 +199,17 @@ def get_environment_score(from_loc, to_loc, gmaps_objects):
     return response_object
 
 
+def get_response(message):
+    response = openai.ChatCompletion.create(
+        model='gpt-3.5-turbo',
+        temperature=1,
+        messages=[
+            {"role": "user", "content": message}
+        ]
+    )
+    return response.choices[0]["message"]["content"]
+
+
 # Do autocomplete for user places input
 @app.route('/api/places', methods=['GET'])
 def places_autocomplete():
@@ -250,6 +261,7 @@ def routing():
     gmaps_objects = (
         w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r
     )
+
 
     while True:
         try:

@@ -4,7 +4,6 @@ from dotenv import dotenv_values
 
 # Load environment variables from .env file
 env_vars = dotenv_values(".env")
-
 # Retrieve the Google Maps API Key from environment variables
 GMAPS_KEY = env_vars["GMAPS_KEY"]
 
