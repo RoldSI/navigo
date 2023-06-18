@@ -1,3 +1,4 @@
+# Import necessary modules and libraries
 from flask import Flask, jsonify, request
 import firebase_admin
 from flask_cors import CORS
@@ -10,11 +11,13 @@ import urllib
 import requests
 import json
 
+# Import API-keys from .env file
 env_vars = dotenv_values(".env")
 OPENAI_API_KEY = env_vars["OPENAI_API_KEY"]
 GMAPS_KEY = env_vars["GMAPS_KEY"]
 openai.api_key = OPENAI_API_KEY
 
+# Set up firebase for authentication and database
 cred = credentials.Certificate('firebaseCredentials.json')
 firebaseApp = firebase_admin.initialize_app(cred)
 db = firestore.client()
@@ -25,6 +28,7 @@ CORS(app)  # Enable CORS for all routes
 favorites = []
 
 
+# Utility function to authenticate/validate a user based on some provided token with 
 def authenticate_user(bearer_token):
     if bearer_token is None:
         return None
@@ -107,38 +111,25 @@ def get_favorites():
 @app.route('/api/suggestions', methods=['GET'])
 def generate_suggestion():
     location = request.args.get("input")
-    # location = request.json['input']  # get data from frontend
     message = [{"role": "user",
                 "content": f"What are some things to do in {location}? Your answer should not exceed 25 words, and should be json-formatted containing the location and the address each."}]
-    # actual version
-    '''chat = openai.ChatCompletion.create(
+    chat = openai.ChatCompletion.create(
         model="gpt-4", messages=message
     )
     reply = chat.choices[0].message.content
     print(reply)
-    return jsonify({"places": reply})'''
-    # dummy because we're poor
-    return jsonify(
-        {
-            "places": "{\n  \"1\": {\"location\": \"ZKM | Center for Art and Media\", \"address\": \"Lorenzstr. 19, 76135 Karlsruhe\"},\n  \"2\": {\"location\": \"Karlsruhe Palace\", \"address\": \"Schloßbezirk 10, 76131 Karlsruhe\"},\n  \"3\": {\"location\": \"Botanical Gardens\", \"address\": \"Ernst-Friedrich-Platz 5, 76133 Karlsruhe\"}\n}"
-        }
-    )
+    return jsonify({"places": reply})
 
 
 @app.route('/api/intro', methods=['GET'])
 def generate_chatbot_hello():
     message = [{"role": "user",
-                "content": f"You are the assistant of a route planing system for transportation which considers co2 emissions. Say hello to it, introduce yourself Your answer should not exceed 25 words."}]
-    # actual stuff
-    '''chat = openai.ChatCompletion.create(
+                "content": f"You are the assistant of a route planing system for transportation which considers co2 emissions. Say hello to the user, introduce yourself as the user's travel advisor. Your answer should not exceed 25 words."}]
+    chat = openai.ChatCompletion.create(
         model="gpt-3.5-turbo", messages=message
     )
     reply = chat.choices[0].message.content
-    return jsonify({"intro": reply})'''
-    # dummy because we're poor
-    return jsonify({
-        "intro": "Hello, I'm the AI assistant of a route planning system that considers CO2 emissions. How can I assist you today?"
-    })
+    return jsonify({"intro": reply})
 
 
 # @app.route('/api/efficiency_score', methods=['GET'])
@@ -237,7 +228,7 @@ def places_autocomplete():
     places_response = requests.get(url).json()
     predictions = []
     for prediction_obj in places_response['predictions']:
-        predictions.append(prediction_obj['structured_formatting']['main_text'])
+        predictions.append(prediction_obj['description'])
     return jsonify(predictions)
 
 
@@ -323,13 +314,7 @@ def routing():
             },
 
         },
-        #,
-        #'plane': {
-        #    'efficiency': efficiency_scores['plane'],
-        #    'catastrophy': catastrophy_scores['plane'],
-        #}
     }
-
     return jsonify(response_data)
 
 
