@@ -15,21 +15,21 @@ enum SEARCH_MODE {
 })
 export class SidebarComponent {
   startMode: SEARCH_MODE = SEARCH_MODE.START;
-  destinationMode: SEARCH_MODE = SEARCH_MODE.START;
+  destinationMode: SEARCH_MODE = SEARCH_MODE.DESTINATION;
   start: any;
   destination: any;
   startSuggestions: string[] = [];
   destinationSuggestions: string[] = [];
 
   public search(mode: SEARCH_MODE, event: AutoCompleteCompleteEvent): void {
-    console.log(mode, event);
     const queryString = event.query;
-    if (mode === SEARCH_MODE.START) {
-
-    } else if (mode == SEARCH_MODE.DESTINATION) {
-
-    }
-    // this.suggestions = [...Array(10).keys()].map(item => event.query + '-' + item);
+    this.apiService.getAutocompleteSuggestions({input: queryString}).subscribe((res) => {
+      if (mode === SEARCH_MODE.START) {
+        this.startSuggestions = res;
+      } else if (mode == SEARCH_MODE.DESTINATION) {
+        this.destinationSuggestions = res;
+      }
+    })
   }
 
   suggestions: { address: string, location: string }[] = [];
@@ -42,7 +42,7 @@ export class SidebarComponent {
   }
 
   startSearch(): void {
-    this.mapRoutingService.createDirectionRequest("Karlsruhe HBF", "Durlach Bahnhof")
+    this.mapRoutingService.createDirectionRequest(this.start, this.destination);
   }
 
   loadInitialHelpText(): void {

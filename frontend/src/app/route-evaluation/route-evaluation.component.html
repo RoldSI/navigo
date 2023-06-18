@@ -4,7 +4,14 @@
   [class.high-catastrophy]="highCatastrophy"
 >
   <header class="heading">
-    {{ routeEval.name }}
+    <h4>{{ routeEval.name }}</h4>
+    <button
+      pButton
+      pRipple
+      label="Add to my score"
+      class="p-button-success button"
+      (click)="addRoute()"
+    ></button>
   </header>
 
   <article class="indicators">
@@ -21,9 +28,12 @@
       unit="Kg CO2"
     ></number-indicator>
     <number-indicator
-      class="catastrophy-indicator"
+      [content]="routeEval.efficiency"
+      unit="Efficiency"
+    ></number-indicator>
+    <number-indicator
       [content]="routeEval.catastrophy"
-      unit="C.s."
+      unit="Catastrophy"
     ></number-indicator>
   </article>
 </div>

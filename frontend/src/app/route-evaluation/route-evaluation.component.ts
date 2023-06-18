@@ -1,11 +1,14 @@
-import { Component, Input, Renderer2, ElementRef } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { MapRoutingService } from '../utils/map-routing.service';
+import { ApiService } from '../utils/api.service';
 
 export type RouteEvaluation = {
   name: string;
   co2: number;
+  efficiency: number;
+  catastrophy: number;
   distance: number;
   time: number;
-  catastrophy: number;
 };
 
 @Component({
@@ -23,5 +26,24 @@ export class RouteEvaluationComponent {
     } else {
       this.highCatastrophy = false; // Set the variable to false if not
     }
+  }
+  constructor(
+    private mapRoutingService: MapRoutingService,
+    private apiService: ApiService
+  ) {
+    // TODO: Später
+    // this.loadSuggestions("Karlsruhe")
+  }
+
+  addRoute() {
+    this.apiService.addRouteToUser(
+      <number>this.routeEval?.efficiency,
+      <number>this.routeEval?.distance,
+      <number>this.routeEval?.time,
+      'from',
+      'to',
+      <number>this.routeEval?.catastrophy,
+      'something'
+    );
   }
 }
