@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {MapRoutingService, RouteDirectionResult} from '../utils/map-routing.service';
-import {ApiService} from '../utils/api.service';
+import {RouteDirectionResult} from '../utils/map-routing.service';
+import {ColormapService} from "../utils/color.service";
 
 export type RouteEvaluation = {
   name: string;
@@ -17,7 +17,16 @@ export type RouteEvaluation = {
   styleUrls: ['./route-evaluation.component.scss'],
 })
 export class RouteEvaluationComponent {
+  private _routeEval: RouteDirectionResult | undefined;
+  constructor(private colorService: ColormapService) {}
+
   @Input() routeEval: RouteDirectionResult | undefined;
+
+  @Input() colorMap: Map<string, string> | undefined;
+
+  getColor(key: string): string {
+    return this.colorMap?.get(key) || ""
+  }
 
   addRoute() {
     if (!this.routeEval) return;

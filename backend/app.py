@@ -406,10 +406,7 @@ def calculate_emissions(distance, mode):
     distance_in_km =  distance / 1000
 
     if mode == "walking" or mode in "biking":
-        if distance == 0:
-            emissions = 0
-        else:
-            emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km) / 25
+        emissions = 0
     elif mode == "car":
         emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km)
     elif mode == "public_transportation":

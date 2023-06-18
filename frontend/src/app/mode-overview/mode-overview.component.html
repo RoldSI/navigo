@@ -8,13 +8,13 @@
     <div *ngIf="loading; else content">
       <div class="progress-wrapper">
         <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="3"
-                           animationDuration=".5s"></p-progressSpinner>
+                           animationDuration="1s"></p-progressSpinner>
       </div>
     </div>
 
     <!-- Content container -->
     <ng-template #content>
-      <route-evaluation *ngFor="let route of routes | async" [routeEval]="route"></route-evaluation>
+      <route-evaluation *ngFor="let route of routes; let i = index" [routeEval]="route" [colorMap]="colorMap[i]"></route-evaluation>
     </ng-template>
   </div>
 
