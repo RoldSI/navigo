@@ -279,6 +279,7 @@ def routing():
             'duration': w_dur,
             'efficiency': efficiency_scores['walking'],
             'catastrophy': catastrophy_scores['walking'],
+            'co2': calculate_emissions(w_dist, 'walking'),
             'directionsResult': {
                 'available_travel_modes': ['WALKING'],
                 'geocoded_waypoints': w_wp,
@@ -290,6 +291,7 @@ def routing():
             'duration': b_dur,
             'efficiency': efficiency_scores['bicycle'],
             'catastrophy': catastrophy_scores['bicycle'],
+            'co2': calculate_emissions(b_dist, 'bicycle'),
             'directionsResult': {
                 'available_travel_modes': ['BICYCLING'],
                 'geocoded_waypoints': b_wp,
@@ -301,6 +303,7 @@ def routing():
             'duration': d_dur,
             'efficiency': efficiency_scores['driving'],
             'catastrophy': catastrophy_scores['driving'],
+            'co2': calculate_emissions(d_dist, 'driving'),
             'directionsResult': {
                 'available_travel_modes': ['DRIVING'],
                 'geocoded_waypoints': d_wp,
@@ -312,6 +315,7 @@ def routing():
             'duration': p_dur,
             'efficiency': efficiency_scores['public_transportation'],
             'catastrophy': catastrophy_scores['public_transportation'],
+            'co2': calculate_emissions(p_dist, 'public_transportation'),
             'directionsResult': {
                 'available_travel_modes': ['TRANSIT'],
                 'geocoded_waypoints': p_wp,
@@ -385,26 +389,28 @@ def get_user_score():
     return jsonify({"score": score})
 
 
-@app.route('/api/emissions', methods=['GET'])
+
+#@app.route('/api/emissions', methods=['GET'])
 def calculate_emissions(distance, mode):
-    distance = request.args.get("distance")
-    mode = request.args.get("mode")
-    if mode == "walking" or mode in "biking":
+    #distance = request.args.get("distance")
+    #mode = request.args.get("mode")
+    distance_in_km = distance/1000
+    if mode == "walking" or mode in "bicycle":
         if distance == 0:
             emissions = 0
         else:
-            emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km=distance) / 25
-    elif mode == "car":
-        emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km=distance)
+            emissions = 0 # Mode.SMALL_CAR.estimate_co2(distance_in_km) / 25
+    elif mode == "driving":
+        emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km)
     elif mode == "public_transportation":
-        emissions = Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance)
+        emissions = Mode.LIGHT_RAIL.estimate_co2(distance_in_km)
     elif mode == "plane":
-        emissions = Mode.AIRPLANE.estimate_co2(distance_in_km=distance)
+        emissions = Mode.AIRPLANE.estimate_co2(distance_in_km)
     else:
         print("Invalid mode of transportation.")
         return None
 
-    return jsonify({"emissions": emissions})
+    return emissions
 
 
 # this method calculates an efficiency score based on time and co2 emissions
