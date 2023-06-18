@@ -1,3 +1,5 @@
+@import "primeicons/primeicons.css";
+
 :root {
   --header-height: 50px;
   --default-margin: .3rem;
@@ -18,6 +20,18 @@
 
 }
 
+.p-button.p-button-success {
+  background: var(--clr-msg) !important;
+  border: 1px solid var(--clr-msg) !important;
+}
+
+.progress-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 /* You can add global styles to this file, and also import other style files */
 body {
