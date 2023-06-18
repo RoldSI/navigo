@@ -157,32 +157,38 @@ def generate_chatbot_hello():
 
 # Compute environment scores for given routes
 def get_environment_score(from_loc, to_loc, gmaps_objects):
-    (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
-        from_loc,
-        to_loc,
-        'walking'
-    )
-    print(f"{w_dist=}")
-    (b_dist, b_dur, b_wp, b_r) = GmapsUtils.calculate_route_gmaps(
-        from_loc,
-        to_loc,
-        'biking'
-    )
-    print(f"{b_dist=}")
+    # start = request.args.get("start")
+    # end = request.args.get("end")
+    # start = "Karlsruhe HBF"
+    # end = "Istanbul"
+    w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r = gmaps_objects
 
-    (d_dist, d_dur, d_wp, d_r) = GmapsUtils.calculate_route_gmaps(
-        from_loc,
-        to_loc,
-        'driving'
-    )
-    print(f"{d_dist=}")
+    # (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
+    #     from_loc,
+    #     to_loc,
+    #     'walking'
+    # )
+    # print(f"{w_dist=}")
+    # (b_dist, b_dur, b_wp, b_r) = GmapsUtils.calculate_route_gmaps(
+    #     from_loc,
+    #     to_loc,
+    #     'biking'
+    # )
+    # print(f"{b_dist=}")
 
-    (p_dist, p_dur, p_wp, p_r) = GmapsUtils.calculate_route_gmaps(
-        from_loc,
-        to_loc,
-        'transit'
-    )
-    print(f"{p_dist=}")
+    # (d_dist, d_dur, d_wp, d_r) = GmapsUtils.calculate_route_gmaps(
+    #     from_loc,
+    #     to_loc,
+    #     'driving'
+    # )
+    # print(f"{d_dist=}")
+
+    # (p_dist, p_dur, p_wp, p_r) = GmapsUtils.calculate_route_gmaps(
+    #     from_loc,
+    #     to_loc,
+    #     'transit'
+    # )
+    # print(f"{p_dist=}")
 
     text = f"You have to travel from {from_loc} to {to_loc}. Please rate each method with a singular score of 0 (least likely) to 100 (most likely) which transportation you would like to take if you consider CO2 emissions and travel time. You are an environmentally friendly person, but if the travel time is long or unrealistic, you prefer faster options. The following travel methods are available: walking, bicycle, driving, public_transportation, plane Give the results only (one score per travel method) back in JSON format."
 
