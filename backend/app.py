@@ -111,18 +111,18 @@ def generate_suggestion():
     message = [{"role": "user",
                 "content": f"What are some things to do in {location}? Your answer should not exceed 25 words, and should be json-formatted containing the location and the address each."}]
     # actual version
-    '''chat = openai.ChatCompletion.create(
+    chat = openai.ChatCompletion.create(
         model="gpt-4", messages=message
     )
     reply = chat.choices[0].message.content
     print(reply)
-    return jsonify({"places": reply})'''
+    return jsonify({"places": reply})
     # dummy because we're poor
-    return jsonify(
-        {
-            "places": "{\n  \"1\": {\"location\": \"ZKM | Center for Art and Media\", \"address\": \"Lorenzstr. 19, 76135 Karlsruhe\"},\n  \"2\": {\"location\": \"Karlsruhe Palace\", \"address\": \"Schloßbezirk 10, 76131 Karlsruhe\"},\n  \"3\": {\"location\": \"Botanical Gardens\", \"address\": \"Ernst-Friedrich-Platz 5, 76133 Karlsruhe\"}\n}"
-        }
-    )
+    #return jsonify(
+    #    {
+    #        "places": "{\n  \"1\": {\"location\": \"ZKM | Center for Art and Media\", \"address\": \"Lorenzstr. 19, 76135 Karlsruhe\"},\n  \"2\": {\"location\": \"Karlsruhe Palace\", \"address\": \"Schloßbezirk 10, 76131 Karlsruhe\"},\n  \"3\": {\"location\": \"Botanical Gardens\", \"address\": \"Ernst-Friedrich-Platz 5, 76133 Karlsruhe\"}\n}"
+    #    }
+    #)
 
 
 @app.route('/api/intro', methods=['GET'])
@@ -130,15 +130,15 @@ def generate_chatbot_hello():
     message = [{"role": "user",
                 "content": f"You are the assistant of a route planing system for transportation which considers co2 emissions. Say hello to it, introduce yourself Your answer should not exceed 25 words."}]
     # actual stuff
-    '''chat = openai.ChatCompletion.create(
+    chat = openai.ChatCompletion.create(
         model="gpt-3.5-turbo", messages=message
     )
     reply = chat.choices[0].message.content
-    return jsonify({"intro": reply})'''
+    return jsonify({"intro": reply})
     # dummy because we're poor
-    return jsonify({
-        "intro": "Hello, I'm the AI assistant of a route planning system that considers CO2 emissions. How can I assist you today?"
-    })
+    #return jsonify({
+    #    "intro": "Hello, I'm the AI assistant of a route planning system that considers CO2 emissions. How can I assist you today?"
+    #})
 
 
 # @app.route('/api/efficiency_score', methods=['GET'])
