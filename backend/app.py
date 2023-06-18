@@ -180,10 +180,10 @@ def get_environment_score(from_loc, to_loc, gmaps_objects):
 
     if w_dist is not None:
         text += f"\nTake the following information into consideration:\n"
-        text += f"(walking distance (m), walking duration (min))={(w_dist, w_dur)}"
-        text += f"(public transportation distance (m), public transportation duration (min))={(p_dist, p_dur)}"
-        text += f"(driving distance (m), driving duration (min))={(d_dist, d_dur)}"
-        text += f"(bicycle distance (m), bicycle duration (min))={(b_dist, b_dur)}"
+        text += f"(walking distance (m), walking duration (sec))={(w_dist, w_dur)}"
+        text += f"(public transportation distance (m), public transportation duration (sec))={(p_dist, p_dur)}"
+        text += f"(driving distance (m), driving duration (sec))={(d_dist, d_dur)}"
+        text += f"(bicycle distance (m), bicycle duration (sec))={(b_dist, b_dur)}"
 
     message = [{"role": "system", "content": text}]
 
@@ -392,19 +392,22 @@ def get_user_score():
 
 # @app.route('/api/emissions', methods=['GET'])
 def calculate_emissions(distance, mode):
-    distance = request.args.get("distance")
-    mode = request.args.get("mode")
+    # distance = request.args.get("distance")
+    # mode = request.args.get("mode")
+    
+    distance_in_km =  distance / 1000
+
     if mode == "walking" or mode in "biking":
         if distance == 0:
             emissions = 0
         else:
-            emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km=distance) / 25
+            emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km) / 25
     elif mode == "car":
-        emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km=distance)
+        emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km)
     elif mode == "public_transportation":
-        emissions = Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance)
+        emissions = Mode.LIGHT_RAIL.estimate_co2(distance_in_km)
     elif mode == "plane":
-        emissions = Mode.AIRPLANE.estimate_co2(distance_in_km=distance)
+        emissions = Mode.AIRPLANE.estimate_co2(distance_in_km)
     else:
         print("Invalid mode of transportation.")
         return None
@@ -413,31 +416,31 @@ def calculate_emissions(distance, mode):
     return emissions
 
 
-# this method calculates an efficiency score based on time and co2 emissions
-def calculate_efficiency(distance, travel_mode, min_travel_time, max_travel_time, travel_time):
-    min_co2_emissions = min(Mode.SMALL_CAR.estimate_co2(distance_in_km=distance) / 25,
-                            Mode.SMALL_CAR.estimate_co2(distance_in_km=distance),
-                            Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance),
-                            Mode.AIRPLANE.estimate_co2(distance_in_km=distance))
-    max_co2_emissions = max(Mode.SMALL_CAR.estimate_co2(distance_in_km=distance) / 25,
-                            Mode.SMALL_CAR.estimate_co2(distance_in_km=distance),
-                            Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance),
-                            Mode.AIRPLANE.estimate_co2(distance_in_km=distance))
+# # this method calculates an efficiency score based on time and co2 emissions
+# def calculate_efficiency(distance, travel_mode, min_travel_time, max_travel_time, travel_time):
+#     min_co2_emissions = min(Mode.SMALL_CAR.estimate_co2(distance_in_km=distance) / 25,
+#                             Mode.SMALL_CAR.estimate_co2(distance_in_km=distance),
+#                             Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance),
+#                             Mode.AIRPLANE.estimate_co2(distance_in_km=distance))
+#     max_co2_emissions = max(Mode.SMALL_CAR.estimate_co2(distance_in_km=distance) / 25,
+#                             Mode.SMALL_CAR.estimate_co2(distance_in_km=distance),
+#                             Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance),
+#                             Mode.AIRPLANE.estimate_co2(distance_in_km=distance))
 
-    # we have to invert the travel time -> the shorter the better
-    normalized_travel_time = 1 - (travel_time - min_travel_time) / (max_travel_time - min_travel_time)
+#     # we have to invert the travel time -> the shorter the better
+#     normalized_travel_time = 1 - (travel_time - min_travel_time) / (max_travel_time - min_travel_time)
 
-    # we have to invert the emissions -> the lower the better
-    co2_emissions = calculate_emissions(distance, travel_mode)
-    normalized_co2_emissions = 1 - (co2_emissions - min_co2_emissions) / (max_co2_emissions - min_co2_emissions)
+#     # we have to invert the emissions -> the lower the better
+#     co2_emissions = calculate_emissions(distance, travel_mode)
+#     normalized_co2_emissions = 1 - (co2_emissions - min_co2_emissions) / (max_co2_emissions - min_co2_emissions)
 
-    # here we set the weights, which is more important to us. in total they should sum up to
-    travel_time_weight = 0.6
-    co2_emissions_weight = 0.4
+#     # here we set the weights, which is more important to us. in total they should sum up to
+#     travel_time_weight = 0.6
+#     co2_emissions_weight = 0.4
 
-    efficiency_score = (
-                                   normalized_travel_time * travel_time_weight + normalized_co2_emissions * co2_emissions_weight) * 100
-    return efficiency_score
+#     efficiency_score = (
+#                                    normalized_travel_time * travel_time_weight + normalized_co2_emissions * co2_emissions_weight) * 100
+#     return efficiency_score
 
 
 if __name__ == '__main__':
