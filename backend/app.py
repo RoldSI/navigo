@@ -318,10 +318,11 @@ def routing():
                 'routes': p_r,
             }
         },
-        'plane': {
-            'efficiency': efficiency_scores['plane'],
-            'catastrophy': catastrophy_scores['plane'],
-        }
+        #,
+        #'plane': {
+        #    'efficiency': efficiency_scores['plane'],
+        #    'catastrophy': catastrophy_scores['plane'],
+        #}
     }
 
     return jsonify(response_data)

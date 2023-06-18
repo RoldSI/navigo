@@ -5,7 +5,7 @@ import {Observable} from "rxjs";
 @Component({
   selector: 'mode-overview',
   templateUrl: './mode-overview.component.html',
-  styleUrls: ['./mode-overview.component.scss']
+  styleUrls: ['./mode-overview.component.scss'],
 })
 export class ModeOverviewComponent {
   loading: boolean = false;

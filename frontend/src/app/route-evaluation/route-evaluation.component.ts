@@ -3,18 +3,18 @@ import {MapRoutingService, RouteDirectionResult} from '../utils/map-routing.serv
 import {ApiService} from '../utils/api.service';
 
 export type RouteEvaluation = {
-  name: string,
-  co2: number,
-  efficiency: number,
-  catastrophy: number,
-  distance: number,
-  time: number
-}
+  name: string;
+  co2: number;
+  efficiency: number;
+  catastrophy: number;
+  distance: number;
+  time: number;
+};
 
 @Component({
   selector: 'route-evaluation',
   templateUrl: './route-evaluation.component.html',
-  styleUrls: ['./route-evaluation.component.scss']
+  styleUrls: ['./route-evaluation.component.scss'],
 })
 export class RouteEvaluationComponent {
   @Input() routeEval: RouteDirectionResult | undefined;
@@ -32,5 +32,4 @@ export class RouteEvaluationComponent {
     //   0,
     //   'something');
   }
-
 }
