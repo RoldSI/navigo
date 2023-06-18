@@ -55,6 +55,10 @@ export class ApiService {
     return this.http.get<any>(`${environment.apiBase}/authenticateDemo`);
   }
 
+  getUserEfficiency() {
+    return this.http.get<any>(`${environment.apiBase}/user/score`);
+  }
+
   addRouteToUser( efficiency : number, distance : number, duration: number, from: string, to: string, catastrophy: number, mode: string ) {
     const currentDateTime = new Date();
     const year = currentDateTime.getFullYear();

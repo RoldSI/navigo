@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {MapRoutingService} from '../utils/map-routing.service';
 import {ApiService} from '../utils/api.service';
+import {HeaderComponent} from '../header/header.component';
 
 export type RouteEvaluation = {
   name: string,
@@ -26,7 +27,9 @@ export class RouteEvaluationComponent {
   }
 
   addRoute() {
-    this.apiService.addRouteToUser(<number>this.routeEval?.efficiency, <number>this.routeEval?.distance, <number>this.routeEval?.time, 'from', 'to', <number>this.routeEval?.catastrophy, 'something');
+    this.apiService.addRouteToUser(<number>this.routeEval?.efficiency, <number>this.routeEval?.distance, <number>this.routeEval?.time, 'from', 'to', <number>this.routeEval?.catastrophy, 'something').subscribe((res) => {
+      
+    });
   }
 
 }

@@ -6,6 +6,10 @@
   <h2 class="page-heading">CO2-Friendly Traveling Portal</h2>
 
   <div class="right">
+    <ng-container *ngIf="userEf>=0">
+      <p>Your efficiency score: {{userEf}}</p>
+    </ng-container>
+
     <ng-container *ngIf="loggedIn; else loggedOutTemplate">
       <button pButton pRipple label="Logout" class="logout-button p-button-danger" (click)="logout()"></button>
     </ng-container>
