@@ -25,6 +25,8 @@ import {AutoCompleteModule} from "primeng/autocomplete";
 import {FormsModule} from "@angular/forms";
 import {TooltipModule} from 'primeng/tooltip';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {ColormapService} from "./utils/color.service";
+import {DistanceFormatPipe, DistanceUnitPipe, TimeFormatPipe, TimeUnitPipe} from "./utils/formatting.pipes";
 
 @NgModule({
   declarations: [
@@ -34,7 +36,11 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
     HeaderComponent,
     ModeOverviewComponent,
     RouteEvaluationComponent,
-    NumberIndicatorComponent
+    NumberIndicatorComponent,
+    DistanceFormatPipe,
+    TimeFormatPipe,
+    DistanceUnitPipe,
+    TimeUnitPipe
   ],
   imports: [
     TooltipModule,
@@ -54,6 +60,7 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
   providers: [
     AuthService,
     ApiService,
+    ColormapService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
