@@ -22,7 +22,9 @@
     </div>
 
     <div class="search-btn-wrapper">
-      <button pButton pRipple label="Start Search" class="p-button-success search" (click)="startSearch()"></button>
+      <button pButton pRipple label="Start Search"
+              pTooltip="Click to search for a Route!" tooltipPosition="right" [showDelay]="1000"
+              class="p-button-success search" (click)="startSearch()"></button>
     </div>
   </div>
 

@@ -42,6 +42,7 @@
   }
 }
 
-.login-button, .logout-button {
-  padding: var(--default-btn-padding);
+.login-button, .logout-button, ::ng-deep .tableButton {
+  padding: var(--default-btn-padding) !important;
+}
 }

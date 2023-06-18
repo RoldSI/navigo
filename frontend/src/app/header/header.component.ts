@@ -3,6 +3,7 @@ import {AuthService} from "../utils/auth.service";
 import {ApiService} from '../utils/api.service';
 import {ColormapService} from "../utils/color.service";
 import {MapRoutingService} from "../utils/map-routing.service";
+import {Table} from "primeng/table";
 
 @Component({
   selector: 'app-header',
@@ -14,10 +15,32 @@ export class HeaderComponent {
   userEf: number = -1;
   efficiencyColor: string = "#000000";
 
+  data: any[] = []
+  visible: boolean = false;
+
+  showDialog(): void {
+    this.visible = true;
+  }
+
+  generateTableData() {
+    this.data = [];
+    for (let i = 1; i <= 20; i++) {
+      const entry = {
+        ranking: i,
+        efficiencyScore: Math.floor(Math.random() * 100),
+        username: `User ${i}`
+      };
+      this.data.push(entry);
+    }
+    this.data.sort((a, b) => b.efficiencyScore - a.efficiencyScore);
+  }
+
   constructor(private authService: AuthService,
               private apiService: ApiService,
               private colorService: ColormapService,
               private mapRoutingService: MapRoutingService) {
+    this.generateTableData();
+
     this.authService.loggedIn$.subscribe((loggedIn) => {
       this.loggedIn = loggedIn;
     });

@@ -5,6 +5,7 @@ import {GoogleMapsModule} from '@angular/google-maps';
 import {initializeApp, provideFirebaseApp} from '@angular/fire/app';
 import {getAuth, provideAuth} from '@angular/fire/auth';
 
+import {DialogModule} from 'primeng/dialog';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {MapComponentComponent} from './map-component/map-component.component';
@@ -37,6 +38,8 @@ import {
 } from "./utils/formatting.pipes";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {TableModule} from "primeng/table";
+import {InputTextModule} from "primeng/inputtext";
 
 @NgModule({
   declarations: [
@@ -63,6 +66,9 @@ import {MessageService} from "primeng/api";
     FormsModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    DialogModule,
+    TableModule,
+    InputTextModule,
     ButtonModule,
     HttpClientModule,
     RippleModule,
