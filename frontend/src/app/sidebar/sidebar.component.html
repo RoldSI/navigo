@@ -26,7 +26,7 @@
     <h2>Travel Guide</h2>
 
     <ng-container *ngIf="suggestions.length > 0; else noSuggestions">
-      <ul>
+      <ul class="suggestion-list">
         <li *ngFor="let suggestion of suggestions">
           {{ suggestion.location }} ({{ suggestion.address }})
         </li>
