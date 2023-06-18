@@ -25,6 +25,7 @@
     "firebase": "^9.22.2",
     "ngx-cookie-service": "^16.0.0",
     "polyline": "^0.2.0",
+    "primeicons": "^6.0.1",
     "primeng": "^16.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

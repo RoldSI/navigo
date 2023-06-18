@@ -23,6 +23,8 @@ import {ApiService} from "./utils/api.service";
 import {AuthInterceptor} from "./utils/auth.interceptor";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {FormsModule} from "@angular/forms";
+import {TooltipModule} from 'primeng/tooltip';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
 @NgModule({
   declarations: [
@@ -35,6 +37,8 @@ import {FormsModule} from "@angular/forms";
     NumberIndicatorComponent
   ],
   imports: [
+    TooltipModule,
+    ProgressSpinnerModule,
     BrowserModule,
     GoogleMapsModule,
     FormsModule,

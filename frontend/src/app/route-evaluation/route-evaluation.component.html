@@ -1,39 +1,14 @@
-<div
-  class="panel route-eval"
-  *ngIf="routeEval"
-  [class.high-catastrophy]="highCatastrophy"
->
+<div class="panel route-eval" *ngIf="routeEval">
   <header class="heading">
-    <h4>{{ routeEval.name }}</h4>
-    <button
-      pButton
-      pRipple
-      label="Add to my score"
-      class="p-button-success button"
-      (click)="addRoute()"
-    ></button>
+    <!--    <h4>{{routeEval.name}}</h4>-->
+    <button pButton pRipple icon="pi pi-check-square" class="p-button-success button" (click)="addRoute()"></button>
   </header>
 
   <article class="indicators">
-    <number-indicator
-      [content]="routeEval.distance"
-      unit="km"
-    ></number-indicator>
-    <number-indicator
-      [content]="routeEval.time"
-      unit="Minutes"
-    ></number-indicator>
-    <number-indicator
-      [content]="routeEval.co2"
-      unit="Kg CO2"
-    ></number-indicator>
-    <number-indicator
-      [content]="routeEval.efficiency"
-      unit="Efficiency"
-    ></number-indicator>
-    <number-indicator
-      [content]="routeEval.catastrophy"
-      unit="Catastrophy"
-    ></number-indicator>
+    <number-indicator [content]="routeEval.distance" unit="km"></number-indicator>
+    <!--    <number-indicator [content]="routeEval.time" unit="Minutes"></number-indicator>-->
+    <!--    <number-indicator [content]="routeEval.co2" unit="Kg CO2"></number-indicator>-->
+    <number-indicator [content]="routeEval.efficiency" unit="Efficiency"></number-indicator>
+    <!--    <number-indicator [content]="routeEval.catastrophy" unit="Catastrophy"></number-indicator>-->
   </article>
 </div>
