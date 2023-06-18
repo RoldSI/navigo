@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {MapRoutingService} from '../utils/map-routing.service';
+import {MapRoutingService, RouteDirectionResult} from '../utils/map-routing.service';
 import {ApiService} from '../utils/api.service';
-import {HeaderComponent} from '../header/header.component';
 
 export type RouteEvaluation = {
   name: string,
@@ -18,18 +17,20 @@ export type RouteEvaluation = {
   styleUrls: ['./route-evaluation.component.scss']
 })
 export class RouteEvaluationComponent {
-  @Input() routeEval: RouteEvaluation | undefined;
-
-  constructor(private mapRoutingService: MapRoutingService, private apiService: ApiService) {
-
-    // TODO: Später
-    // this.loadSuggestions("Karlsruhe")
-  }
+  @Input() routeEval: RouteDirectionResult | undefined;
 
   addRoute() {
-    this.apiService.addRouteToUser(<number>this.routeEval?.efficiency, <number>this.routeEval?.distance, <number>this.routeEval?.time, 'from', 'to', <number>this.routeEval?.catastrophy, 'something').subscribe((res) => {
-      
-    });
+    if (!this.routeEval) return;
+    // this.routeEval.time
+    // this.routeEval?.catastrophy,
+    alert("implement...");
+    // this.apiService.addRouteToUser(this.routeEval.efficiency,
+    //   this.routeEval.distance,
+    //   0,
+    //   'from',
+    //   'to',
+    //   0,
+    //   'something');
   }
 
 }

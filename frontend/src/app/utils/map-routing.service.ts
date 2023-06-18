@@ -19,24 +19,44 @@ export type RouteDirectionResult = {
   providedIn: 'root'
 })
 export class MapRoutingService {
-  private routeSubject: Subject<RouteDirectionResult[]>;
-  public route$: Observable<RouteDirectionResult[]>;
+  private routeSubject: Subject<RouteDirectionResult[]> = new Subject<RouteDirectionResult[]>();
+  public route$: Observable<RouteDirectionResult[]> = this.routeSubject.asObservable();
+
+  private suggestionsSubject: Subject<{ address: string, location: string }[]> = new Subject<{ address: string, location: string }[]>();
+  public suggestions$: Observable<{ address: string, location: string }[]> = this.suggestionsSubject.asObservable();
+
+  private routesLoadingSubject: Subject<boolean> = new Subject<boolean>();
+  public routesLoading$: Observable<boolean> = this.routesLoadingSubject.asObservable();
 
   public startLocation: string = "";
   public endLocation: string = "";
 
   private _directionsService: google.maps.DirectionsService | undefined;
 
-  constructor(private readonly _ngZone: NgZone, private readonly geocoder: MapGeocoder, private apiService: ApiService) {
-    this.routeSubject = new Subject<RouteDirectionResult[]>();
-    this.route$ = this.routeSubject.asObservable();
+  constructor(private readonly _ngZone: NgZone,
+              private readonly geocoder: MapGeocoder,
+              private apiService: ApiService) {
   };
 
   createDirectionRequest(source: string, dest: string): void {
     this.startLocation = source;
     this.endLocation = dest;
+    this.routesLoadingSubject.next(true);
+
+    this.apiService.generateChatGPTSuggestion({input: dest}).subscribe((suggestions) => {
+      const cleanedJsonString = suggestions.places.replace(/\\n/g, '');
+      const jsonObject = JSON.parse(cleanedJsonString);
+
+      // TODO: Emit the "address" to the Map to draw the suggestions
+      this.suggestionsSubject.next(Object.keys(jsonObject).map(key => {
+        return jsonObject[key];
+      }));
+    })
+
     this.apiService.getRoutes({from: source, to: dest}).subscribe((res) => {
-      console.log(res);
+      console.log("ROUTING RES: ", res);
+      this.routesLoadingSubject.next(false);
+
       const obj: RouteDirectionResult[] = []
       for (const key in res) {
         if (res.hasOwnProperty(key)) {

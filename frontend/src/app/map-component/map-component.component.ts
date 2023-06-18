@@ -69,7 +69,6 @@ export class MapComponentComponent {
   ngOnInit(): void {
     this.mapRoutingService.route$.subscribe((res: RouteDirectionResult[]) => {
       res.forEach((r: any) => {
-        console.log(r);
         this.startLocation = r.directionsResult.routes[0].legs[0].start_location;
         this.destinationLocation = r.directionsResult.routes[0].legs[0].end_location;
 

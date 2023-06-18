@@ -59,7 +59,7 @@ export class ApiService {
     return this.http.get<any>(`${environment.apiBase}/user/score`);
   }
 
-  addRouteToUser( efficiency : number, distance : number, duration: number, from: string, to: string, catastrophy: number, mode: string ) {
+  addRouteToUser(efficiency: number, distance: number, duration: number, from: string, to: string, catastrophy: number, mode: string) {
     const currentDateTime = new Date();
     const year = currentDateTime.getFullYear();
     const month = String(currentDateTime.getMonth() + 1).padStart(2, '0'); // Adding 1 to month since it's zero-based
@@ -71,7 +71,7 @@ export class ApiService {
     const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
 
     return this.http.post<any>(`${environment.apiBase}/user/routes`, {
-      "from" : from,
+      "from": from,
       "to": to,
       "duration": duration,
       "distance": distance,

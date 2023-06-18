@@ -11,12 +11,16 @@
     </ng-container>
 
     <ng-container *ngIf="loggedIn; else loggedOutTemplate">
-      <button pButton pRipple label="Logout" class="logout-button p-button-danger" (click)="logout()"></button>
+      <button pButton pRipple label="Logout"
+              pInputText pTooltip="Click to Logout" tooltipPosition="bottom"
+              class="logout-button p-button-danger" (click)="logout()"></button>
     </ng-container>
 
     <ng-template #loggedOutTemplate>
       <!-- Display the login button -->
-      <button pButton pRipple label="Login" class="login-button p-button-primary" (click)="login()"></button>
+      <button pButton pRipple label="Login"
+              pInputText pTooltip="Click to Login" tooltipPosition="bottom"
+              class="login-button p-button-primary" (click)="login()"></button>
     </ng-template>
   </div>
 </div>

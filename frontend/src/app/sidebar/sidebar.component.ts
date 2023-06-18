@@ -37,6 +37,9 @@ export class SidebarComponent {
 
   constructor(private mapRoutingService: MapRoutingService, private apiService: ApiService) {
     this.loadInitialHelpText();
+    this.mapRoutingService.suggestions$.subscribe((s) => {
+      this.suggestions = s;
+    })
     // TODO: Später
     // this.loadSuggestions("Karlsruhe")
   }
@@ -48,19 +51,6 @@ export class SidebarComponent {
   loadInitialHelpText(): void {
     this.apiService.generateChatGPTIntro().subscribe((res: any) => {
       this.introText = res.intro;
-    })
-  }
-
-  loadSuggestions(addr: string): void {
-    this.apiService.generateChatGPTSuggestion({input: addr}).subscribe((res) => {
-      const cleanedJsonString = res.places.replace(/\\n/g, '');
-      const jsonObject = JSON.parse(cleanedJsonString);
-
-      this.suggestions = Object.keys(jsonObject).map(key => {
-        return jsonObject[key];
-      });
-
-      // TODO: Emit the "address" to the Map to draw the suggestions
     })
   }
 }
