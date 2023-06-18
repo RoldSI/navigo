@@ -12,6 +12,8 @@ export type RouteDirectionResult = {
   distance: string;
   duration: string;
   efficiency: number;
+  // co2: number,
+  catastrophy: number
 }
 
 
@@ -53,6 +55,7 @@ export class MapRoutingService {
       }));
     })
 
+    console.log("Search for route...");
     this.apiService.getRoutes({from: source, to: dest}).subscribe((res) => {
       console.log("ROUTING RES: ", res);
       this.routesLoadingSubject.next(false);

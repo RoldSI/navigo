@@ -14,12 +14,13 @@
 
 .indicators {
   padding: var(--default-padding);
-  //padding-top: calc(0.5 + var(--default-padding));
   position: relative;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
+  flex-wrap: wrap;
+  gap: var(--default-padding);
 }
 // .catastrophy-indicator {
 //   padding: 10px;

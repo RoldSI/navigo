@@ -1,4 +1,12 @@
 <div class="number-indicator">
-  <p class="content">{{content}}</p>
-  <p class="unit">{{unit}}</p>
+  <ng-container [ngSwitch]="formattingMode">
+    <p class="content" [style.color]="color" *ngSwitchCase="'distance'">{{ content | distanceFormat }}</p>
+    <p class="content" [style.color]="color" *ngSwitchCase="'time'">{{ content | timeFormat }}</p>
+    <p class="content" [style.color]="color" *ngSwitchDefault>{{ content }}</p>
+  </ng-container>
+  <ng-container [ngSwitch]="formattingMode">
+    <p class="unit" *ngSwitchCase="'distance'">{{ content | distanceUnit }}</p>
+    <p class="unit" *ngSwitchCase="'time'">{{ content | timeUnit }}</p>
+    <p class="unit" *ngSwitchDefault>{{ unit }}</p>
+  </ng-container>
 </div>
