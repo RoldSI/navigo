@@ -187,7 +187,6 @@ def get_environment_score(from_loc, to_loc, gmaps_objects):
 
     # Do the GPT request
     chat_2 = openai.ChatCompletion.create(
-        # model="gpt-4",
         model="gpt-3.5-turbo",
         messages=message
     )
@@ -251,11 +250,16 @@ def routing():
     gmaps_objects = (
         w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r
     )
-    score_responses = get_environment_score(from_loc, to_loc, gmaps_objects)
 
-    # Extract the efficiency and catastrophy scores
-    efficiency_scores = json.loads(score_responses.get('reply_1'))
-    catastrophy_scores = json.loads(score_responses.get('reply_2'))
+    while True:
+        try:
+            score_responses = get_environment_score(from_loc, to_loc, gmaps_objects)
+            # Extract the efficiency and catastrophy scores
+            efficiency_scores = json.loads(score_responses.get('reply_1'))
+            catastrophy_scores = json.loads(score_responses.get('reply_2'))
+            break
+        except:
+            print('AI score generation failed. retrying...')
 
     # Populate the API response
     response_data = {
@@ -264,7 +268,7 @@ def routing():
             'duration': w_dur,
             'efficiency': efficiency_scores['walking'],
             'catastrophy': catastrophy_scores['walking'],
-            'co2' : calculate_emissions(w_dist, 'walking'),
+            'co2': calculate_emissions(w_dist, 'walking'),
             'directionsResult': {
                 'available_travel_modes': ['WALKING'],
                 'geocoded_waypoints': w_wp,
@@ -276,7 +280,7 @@ def routing():
             'duration': b_dur,
             'efficiency': efficiency_scores['bicycle'],
             'catastrophy': catastrophy_scores['bicycle'],
-            'co2' : calculate_emissions(b_dist, 'bicycle'),
+            'co2': calculate_emissions(b_dist, 'bicycle'),
             'directionsResult': {
                 'available_travel_modes': ['BICYCLING'],
                 'geocoded_waypoints': b_wp,
@@ -288,7 +292,7 @@ def routing():
             'duration': d_dur,
             'efficiency': efficiency_scores['driving'],
             'catastrophy': catastrophy_scores['driving'],
-            'co2' : calculate_emissions(d_dist, 'driving'),
+            'co2': calculate_emissions(d_dist, 'driving'),
             'directionsResult': {
                 'available_travel_modes': ['DRIVING'],
                 'geocoded_waypoints': d_wp,
@@ -300,7 +304,7 @@ def routing():
             'duration': p_dur,
             'efficiency': efficiency_scores['public_transportation'],
             'catastrophy': catastrophy_scores['public_transportation'],
-            'co2' : calculate_emissions(p_dist, 'public_transportation'),
+            'co2': calculate_emissions(p_dist, 'public_transportation'),
             'directionsResult': {
                 'available_travel_modes': ['TRANSIT'],
                 'geocoded_waypoints': p_wp,
@@ -382,18 +386,18 @@ def get_user_score():
 # Compute co2 emissions for the different routes for the different transport modes
 def calculate_emissions(distance, mode):
     # Convert distance to km
-    distance_in_km =  distance / 1000
+    distance_in_km = distance / 1000
     # Do library-supported computations to get a co2 prediction for each route for each mode of transport
-    if mode == "walking" or mode in "biking":
+    if mode == "walking" or mode == "biking" or mode == "bicycle":
         emissions = 0
-    elif mode == "car":
+    elif mode == "driving" or mode == "car":
         emissions = Mode.SMALL_CAR.estimate_co2(distance_in_km)
     elif mode == "public_transportation":
         emissions = Mode.LIGHT_RAIL.estimate_co2(distance_in_km)
     elif mode == "plane":
         emissions = Mode.AIRPLANE.estimate_co2(distance_in_km)
     else:
-        print("Invalid mode of transportation.")
+        print("Invalid mode of transportation: " + mode)
         return None
     return emissions
 
