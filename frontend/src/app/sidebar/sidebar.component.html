@@ -3,19 +3,23 @@
     <h2>Route Selection</h2>
 
     <div class="start-destination-wrapper">
-      <span class="p-float-label">
-        <p-autoComplete id="start-input" [(ngModel)]="start" [suggestions]="startSuggestions"
-                        (completeMethod)="search(startMode, $event)"></p-autoComplete>
-        <label for="start-input">Start</label>
-      </span>
+    <span class="p-float-label">
+      <p-autoComplete id="start-input" [(ngModel)]="start" [suggestions]="startSuggestions"
+                      (completeMethod)="search(startMode, $event)" (onKeyUp)="checkInvalid()"
+                      [ngClass]="{'ng-invalid': startInvalid, 'ng-dirty': startInvalid}"></p-autoComplete>
+      <label for="start-input" class="label" [ngClass]="{'invalid': startInvalid}">Start</label>
+      <small class="p-error" *ngIf="startInvalid">Start is required.</small>
+    </span>
 
       <span class="p-float-label">
-        <p-autoComplete id="destination-input" [(ngModel)]="destination" [suggestions]="destinationSuggestions"
-                        (completeMethod)="search(destinationMode, $event)"></p-autoComplete>
-        <label for="destination-input">Destination</label>
-      </span>
+      <p-autoComplete id="destination-input" [(ngModel)]="destination" [suggestions]="destinationSuggestions"
+                      [ngClass]="{'ng-invalid': destinationInvalid, 'ng-dirty': startInvalid}"
+                      (onKeyUp)="checkInvalid()"
+                      (completeMethod)="search(destinationMode, $event)"></p-autoComplete>
+      <label for="destination-input" class="label" [ngClass]="{'invalid': destinationInvalid}">Destination</label>
+      <small class="p-error" *ngIf="destinationInvalid">Destination is required.</small>
+    </span>
     </div>
-
 
     <div class="search-btn-wrapper">
       <button pButton pRipple label="Start Search" class="p-button-success search" (click)="startSearch()"></button>

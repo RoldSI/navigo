@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
-import {RouteDirectionResult} from '../utils/map-routing.service';
-import {ColormapService} from "../utils/color.service";
+import {MapRoutingService, RouteDirectionResult} from '../utils/map-routing.service';
+import {ApiService} from "../utils/api.service";
+import {MessageService} from "primeng/api";
 
 export type RouteEvaluation = {
   name: string;
@@ -18,7 +19,11 @@ export type RouteEvaluation = {
 })
 export class RouteEvaluationComponent {
   private _routeEval: RouteDirectionResult | undefined;
-  constructor(private colorService: ColormapService) {}
+
+  constructor(private mapRoutingService: MapRoutingService,
+              private apiService: ApiService,
+              private messageService: MessageService) {
+  }
 
   @Input() routeEval: RouteDirectionResult | undefined;
 
@@ -28,17 +33,25 @@ export class RouteEvaluationComponent {
     return this.colorMap?.get(key) || ""
   }
 
+  private savingSuccessfull() {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Route successfully added.',
+      detail: 'You have successfully added the route to your taken routes. It will be considered in your efficiency score.'
+    });
+  }
+
   addRoute() {
     if (!this.routeEval) return;
-    // this.routeEval.time
-    // this.routeEval?.catastrophy,
-    alert("implement...");
-    // this.apiService.addRouteToUser(this.routeEval.efficiency,
-    //   this.routeEval.distance,
-    //   0,
-    //   'from',
-    //   'to',
-    //   0,
-    //   'something');
+    this.apiService.addRouteToUser(this.routeEval.efficiency,
+      this.routeEval.distance,
+      this.routeEval.duration,
+      this.mapRoutingService.startLocation,
+      this.mapRoutingService.endLocation,
+      this.routeEval.catastrophy,
+      this.routeEval.mode).subscribe((res) => {
+      this.mapRoutingService.updateEfficiencyScore();
+      this.savingSuccessfull();
+    })
   }
 }

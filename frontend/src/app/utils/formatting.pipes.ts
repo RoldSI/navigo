@@ -57,6 +57,46 @@ export class DistanceUnitPipe implements PipeTransform {
 }
 
 @Pipe({
+  name: 'co2Format'
+})
+export class Co2Pipe implements PipeTransform {
+  transform(value: number | string): string {
+    if (isNaN(+value)) return value + "";
+    else value = Number(value);
+
+    if (value >= 1000) {
+      const kgValue = value / 1000;
+      return kgValue.toFixed(2);
+    } else {
+      return value.toFixed(2);
+    }
+  }
+}
+
+@Pipe({
+  name: 'co2Unit'
+})
+export class Co2UnitPipe implements PipeTransform {
+  transform(value: number | string): string {
+    const prefix = " CO2"
+    if (isNaN(+value)) return value + prefix;
+    else value = Number(value);
+    return (value >= 1000 ? 'kg' : 'g') + prefix;
+  }
+}
+
+@Pipe({
+  name: 'roundToTwoDecimals'
+})
+export class RoundToTwoDecimalsPipe implements PipeTransform {
+  transform(value: number | string): number | string {
+    if (isNaN(+value)) return value + "";
+    else value = Number(value);
+    return Math.round(value * 100) / 100; // Round to two decimal places
+  }
+}
+
+@Pipe({
   name: 'timeUnit'
 })
 export class TimeUnitPipe implements PipeTransform {

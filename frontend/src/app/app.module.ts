@@ -20,13 +20,23 @@ import {NumberIndicatorComponent} from './number-indicator/number-indicator.comp
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AuthService} from "./utils/auth.service";
 import {ApiService} from "./utils/api.service";
-import {AuthInterceptor} from "./utils/auth.interceptor";
+import {AuthInterceptor, ErrorInterceptor} from "./utils/auth.interceptor";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {FormsModule} from "@angular/forms";
 import {TooltipModule} from 'primeng/tooltip';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ColormapService} from "./utils/color.service";
-import {DistanceFormatPipe, DistanceUnitPipe, TimeFormatPipe, TimeUnitPipe} from "./utils/formatting.pipes";
+import {
+  Co2Pipe,
+  Co2UnitPipe,
+  DistanceFormatPipe,
+  DistanceUnitPipe,
+  RoundToTwoDecimalsPipe,
+  TimeFormatPipe,
+  TimeUnitPipe
+} from "./utils/formatting.pipes";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
 
 @NgModule({
   declarations: [
@@ -40,11 +50,14 @@ import {DistanceFormatPipe, DistanceUnitPipe, TimeFormatPipe, TimeUnitPipe} from
     DistanceFormatPipe,
     TimeFormatPipe,
     DistanceUnitPipe,
-    TimeUnitPipe
+    TimeUnitPipe,
+    RoundToTwoDecimalsPipe, Co2UnitPipe,
+    Co2Pipe
   ],
   imports: [
     TooltipModule,
     ProgressSpinnerModule,
+    ToastModule,
     BrowserModule,
     GoogleMapsModule,
     FormsModule,
@@ -61,10 +74,16 @@ import {DistanceFormatPipe, DistanceUnitPipe, TimeFormatPipe, TimeUnitPipe} from
     AuthService,
     ApiService,
     ColormapService,
+    MessageService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true
     }
   ],
   bootstrap: [AppComponent]

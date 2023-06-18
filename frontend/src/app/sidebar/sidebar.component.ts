@@ -20,6 +20,8 @@ export class SidebarComponent {
   destination: any;
   startSuggestions: string[] = [];
   destinationSuggestions: string[] = [];
+  startInvalid: boolean = false;
+  destinationInvalid: boolean = false;
 
   public search(mode: SEARCH_MODE, event: AutoCompleteCompleteEvent): void {
     const queryString = event.query;
@@ -38,13 +40,19 @@ export class SidebarComponent {
   constructor(private mapRoutingService: MapRoutingService, private apiService: ApiService) {
     this.loadInitialHelpText();
     this.mapRoutingService.suggestions$.subscribe((s) => {
+      console.log("Suggestions: ", this.suggestions);
       this.suggestions = s;
     })
-    // TODO: Später
-    // this.loadSuggestions("Karlsruhe")
+  }
+
+  checkInvalid(): void {
+    this.startInvalid = !this.start;
+    this.destinationInvalid = !this.destination;
   }
 
   startSearch(): void {
+    this.checkInvalid();
+    if (this.startInvalid || this.destinationInvalid) return;
     this.mapRoutingService.createDirectionRequest(this.start, this.destination);
   }
 
