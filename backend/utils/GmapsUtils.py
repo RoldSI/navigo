@@ -59,7 +59,4 @@ def get_maneuvers(routes):
                 except:
                     # print("BUT THERE ARE NO MANEUVERS IN THIS STEP ANYWAYS")
                     pass
-                # print(f"{step=}")
-        # Print the list of maneuvers
-        # print(maneuvers)
     return maneuvers

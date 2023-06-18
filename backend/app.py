@@ -157,41 +157,12 @@ def generate_chatbot_hello():
 
 # Compute environment scores for given routes
 def get_environment_score(from_loc, to_loc, gmaps_objects):
-    # start = request.args.get("start")
-    # end = request.args.get("end")
-    # start = "Karlsruhe HBF"
-    # end = "Istanbul"
+    # Load route information from the routing api result to compute proper scores
     w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r = gmaps_objects
 
-    # (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
-    #     from_loc,
-    #     to_loc,
-    #     'walking'
-    # )
-    # print(f"{w_dist=}")
-    # (b_dist, b_dur, b_wp, b_r) = GmapsUtils.calculate_route_gmaps(
-    #     from_loc,
-    #     to_loc,
-    #     'biking'
-    # )
-    # print(f"{b_dist=}")
-
-    # (d_dist, d_dur, d_wp, d_r) = GmapsUtils.calculate_route_gmaps(
-    #     from_loc,
-    #     to_loc,
-    #     'driving'
-    # )
-    # print(f"{d_dist=}")
-
-    # (p_dist, p_dur, p_wp, p_r) = GmapsUtils.calculate_route_gmaps(
-    #     from_loc,
-    #     to_loc,
-    #     'transit'
-    # )
-    # print(f"{p_dist=}")
-
+    # Create AI requestion message to get an efficiency estimation
     text = f"You have to travel from {from_loc} to {to_loc}. Please rate each method with a singular score of 0 (least likely) to 100 (most likely) which transportation you would like to take if you consider CO2 emissions and travel time. You are an environmentally friendly person, but if the travel time is long or unrealistic, you prefer faster options. The following travel methods are available: walking, bicycle, driving, public_transportation, plane Give the results only (one score per travel method) back in JSON format."
-
+    # Extend AI request message if sufficient data from route calculation is available
     if w_dist is not None:
         text += f"\nTake the following information into consideration:\n"
         text += f"(walking distance (m), walking duration (sec))={(w_dist, w_dur)}"
@@ -199,9 +170,8 @@ def get_environment_score(from_loc, to_loc, gmaps_objects):
         text += f"(driving distance (m), driving duration (sec))={(d_dist, d_dur)}"
         text += f"(bicycle distance (m), bicycle duration (sec))={(b_dist, b_dur)}"
 
+    # Do the GPT request
     message = [{"role": "system", "content": text}]
-
-    print(f"{message=}")
     chat = openai.ChatCompletion.create(
         # model="gpt-4",
         model="gpt-3.5-turbo",
@@ -209,57 +179,53 @@ def get_environment_score(from_loc, to_loc, gmaps_objects):
     )
     reply = chat.choices[0].message.content
 
-    print(f"{reply=}")
+    # Do a follow-up request to get a catastrophy score estimation (how bad the world would be if everyone would act as the user)
     message.append({"role": "assistant", "content": reply})
-
     text_2 = f"Now provide a catastrophe score for how bad the climate change effects would be if the entire humanity took comparable routes every day. Give a score between 0 and 100 for each method. Give the results only (one score per travel method) in JSON format"
-
     text_2 += f"For the method 'car', also take into consideration the amount of maneuvers (left and right turns) it would take to realize the route whilst calculating the score. Amount of manuevers for method car: {len(GmapsUtils.get_maneuvers(d_r))}"
-
     message.append({"role": "system", "content": text_2})
 
+    # Do the GPT request
     chat_2 = openai.ChatCompletion.create(
         # model="gpt-4",
         model="gpt-3.5-turbo",
-
         messages=message
     )
     reply_2 = chat_2.choices[0].message.content
 
+    # Return AI-generated json objects
     response_object = {}
     response_object['reply_1'] = reply
     response_object['reply_2'] = reply_2
     return response_object
 
 
-def get_response(message):
-    response = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo',
-        temperature=1,
-        messages=[
-            {"role": "user", "content": message}
-        ]
-    )
-    return response.choices[0]["message"]["content"]
-
-
+# Do autocomplete for user places input
 @app.route('/api/places', methods=['GET'])
 def places_autocomplete():
+    # Get the current user place input from the request
     input = request.args.get("input")
+    # Reformat the string to work as a URL parameter for the API request
     input = urllib.parse.quote(input)
+    # Prepare the google places API request
     url = f"https://maps.googleapis.com/maps/api/place/autocomplete/json?input={input}&key={GMAPS_KEY}"
+    # Run the API query
     places_response = requests.get(url).json()
+    # Create an array of prections
     predictions = []
     for prediction_obj in places_response['predictions']:
         predictions.append(prediction_obj['description'])
+    # Returning predictions
     return jsonify(predictions)
 
 
+# API endpiont to get routes and their associated environmental scores
 @app.route('/api/routes', methods=['GET'])
 def routing():
+    # Load departure and target locations from the request
     from_loc = request.args.get("from")  # get data from frontend
     to_loc = request.args.get("to")  # get data from frontend
-
+    # Use the google directions API to get routes and route information for various modes of transport
     (w_dist, w_dur, w_wp, w_r) = GmapsUtils.calculate_route_gmaps(
         from_loc,
         to_loc,
@@ -281,12 +247,17 @@ def routing():
         'transit'
     )
 
+    # Do the request to the utility function computing the environment scores
     gmaps_objects = (
-    w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r)
+        w_dist, w_dur, w_wp, w_r, b_dist, b_dur, b_wp, b_r, d_dist, d_dur, d_wp, d_r, p_dist, p_dur, p_wp, p_r
+    )
     score_responses = get_environment_score(from_loc, to_loc, gmaps_objects)
 
+    # Extract the efficiency and catastrophy scores
     efficiency_scores = json.loads(score_responses.get('reply_1'))
     catastrophy_scores = json.loads(score_responses.get('reply_2'))
+
+    # Populate the API response
     response_data = {
         'walking': {
             'distance': w_dist,
@@ -341,29 +312,35 @@ def routing():
     return jsonify(response_data)
 
 
+# For logged-in user, return the users route history
 @app.route('/api/user/routes', methods=['GET'])
 def get_user_routes():
+    # User authentication
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    # uid = 'hihoho'
     if uid is None:
         return jsonify({"message": "authentication failed"}), 401
+    # Get database connection for user's route history
     user_favorites_doc_ref = db.collection("user").document(uid)
     user_routes_collection_stream = user_favorites_doc_ref.collection("routes").stream()
+    # Create array with users route history
     user_routes_collection = []
     for user_route in user_routes_collection_stream:
         user_routes_collection.append(user_route.to_dict())
     return jsonify(user_routes_collection)
 
 
+# For logged-in user, add a route to the user's route history
 @app.route('/api/user/routes', methods=['POST'])
 def add_user_route():
+    # User authentication
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    # uid = 'hihoho'
     if uid is None:
         return jsonify({"message": "authentication failed"}), 401
+    # Get the new route
     new_route = request.json
+    # Reformat the new route to a common database format
     new_route = {
         "from": new_route['from'],
         "to": new_route['to'],
@@ -374,20 +351,24 @@ def add_user_route():
         "datetime": new_route['datetime'],
         "mode": new_route['mode']
     }
+    # add the route to the database
     user_routes_collection_ref = db.collection("user").document(uid).collection("routes")
     user_routes_collection_ref.add(new_route)
     return jsonify({"message": "successfully added route to personal user routes"}), 200
 
 
+# For logged-in user, return a user score based on the user's route history
 @app.route('/api/user/score', methods=['GET'])
 def get_user_score():
+    # User authentication
     bearer_token = request.headers.get('Authorization')
     uid = authenticate_user(bearer_token)
-    # uid = 'KV91qiVsRDPakr9OxV456O2dgBE2'
     if uid is None:
         return jsonify({"message": "authentication failed"}), 401
+    # Get user route history from database
     user_favorites_doc_ref = db.collection("user").document(uid)
     user_routes_collection_stream = user_favorites_doc_ref.collection("routes").stream()
+    # Compute an weighted average efficiency as user evaluation
     score = 0
     counter = 0
     for user_route in user_routes_collection_stream:
@@ -398,13 +379,11 @@ def get_user_score():
     return jsonify({"score": score})
 
 
-# @app.route('/api/emissions', methods=['GET'])
+# Compute co2 emissions for the different routes for the different transport modes
 def calculate_emissions(distance, mode):
-    # distance = request.args.get("distance")
-    # mode = request.args.get("mode")
-    
+    # Convert distance to km
     distance_in_km =  distance / 1000
-
+    # Do library-supported computations to get a co2 prediction for each route for each mode of transport
     if mode == "walking" or mode in "biking":
         emissions = 0
     elif mode == "car":
@@ -416,37 +395,9 @@ def calculate_emissions(distance, mode):
     else:
         print("Invalid mode of transportation.")
         return None
-
-    # return jsonify({"emissions": emissions})
     return emissions
 
 
-# # this method calculates an efficiency score based on time and co2 emissions
-# def calculate_efficiency(distance, travel_mode, min_travel_time, max_travel_time, travel_time):
-#     min_co2_emissions = min(Mode.SMALL_CAR.estimate_co2(distance_in_km=distance) / 25,
-#                             Mode.SMALL_CAR.estimate_co2(distance_in_km=distance),
-#                             Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance),
-#                             Mode.AIRPLANE.estimate_co2(distance_in_km=distance))
-#     max_co2_emissions = max(Mode.SMALL_CAR.estimate_co2(distance_in_km=distance) / 25,
-#                             Mode.SMALL_CAR.estimate_co2(distance_in_km=distance),
-#                             Mode.LIGHT_RAIL.estimate_co2(distance_in_km=distance),
-#                             Mode.AIRPLANE.estimate_co2(distance_in_km=distance))
-
-#     # we have to invert the travel time -> the shorter the better
-#     normalized_travel_time = 1 - (travel_time - min_travel_time) / (max_travel_time - min_travel_time)
-
-#     # we have to invert the emissions -> the lower the better
-#     co2_emissions = calculate_emissions(distance, travel_mode)
-#     normalized_co2_emissions = 1 - (co2_emissions - min_co2_emissions) / (max_co2_emissions - min_co2_emissions)
-
-#     # here we set the weights, which is more important to us. in total they should sum up to
-#     travel_time_weight = 0.6
-#     co2_emissions_weight = 0.4
-
-#     efficiency_score = (
-#                                    normalized_travel_time * travel_time_weight + normalized_co2_emissions * co2_emissions_weight) * 100
-#     return efficiency_score
-
-
+# Start the backend
 if __name__ == '__main__':
     app.run()
