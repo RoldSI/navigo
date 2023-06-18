@@ -21,12 +21,14 @@ def calculate_route_gmaps(start, end, mode):
     else:
         print("GMAPS FAILED")
         return None, gmaps_response, None, None
-def get_maneuvers(gmaps_response):
-    routes_ct = len(gmaps_response['routes']) 
-    # print(f"{routes_ct=}")
-    assert routes_ct == 1
 
-    route_0 = gmaps_response['routes'][0]
+
+def get_maneuvers(routes):
+    # routes_ct = len(gmaps_response['routes']) 
+    # print(f"{routes_ct=}")
+    # assert routes_ct == 1
+
+    route_0 = routes[0]
     maneuvers = []
     
     # print(f"{len(route_0['legs'])=}")
@@ -52,7 +54,7 @@ def get_maneuvers(gmaps_response):
                     weird_maneuver = step['maneuver']
                     # print(f"{step['maneuver']=}")
                     maneuvers.append(weird_maneuver)
-                    print("HANDLE THIS!!! \n'\n HANDLE WEIRD MANEUVERS!!")
+                    # print("HANDLE THIS!!! \n'\n HANDLE WEIRD MANEUVERS!!")
 
                 except:
                     # print("BUT THERE ARE NO MANEUVERS IN THIS STEP ANYWAYS")
