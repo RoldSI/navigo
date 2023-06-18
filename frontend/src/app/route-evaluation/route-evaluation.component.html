@@ -1,14 +1,19 @@
+
 <div class="panel route-eval" *ngIf="routeEval">
   <header class="heading">
-    <!--    <h4>{{routeEval.name}}</h4>-->
+    <h4 [style.color]="routeEval.color">{{routeEval.mode}}</h4>
     <button pButton pRipple icon="pi pi-check-square" class="p-button-success button" (click)="addRoute()"></button>
   </header>
 
   <article class="indicators">
-    <number-indicator [content]="routeEval.distance" unit="km" [color]="getColor('distance')" formattingMode="distance"></number-indicator>
-    <number-indicator [content]="routeEval.duration" unit="Minutes" [color]="getColor('duration')" formattingMode="time"></number-indicator>
-    <!--        <number-indicator [content]="routeEval.co2" unit="Kg CO2" [color]="getColor('co2')"></number-indicator>-->
-    <number-indicator [content]="routeEval.efficiency" unit="Efficiency" [color]="getColor('efficiency')"></number-indicator>
-    <number-indicator [content]="routeEval.catastrophy" unit="Catastrophy" [color]="getColor('catastrophy')"></number-indicator>
+    <number-indicator [content]="routeEval.distance" [color]="getColor('distance')"
+                      formattingMode="distance"></number-indicator>
+    <number-indicator [content]="routeEval.duration" [color]="getColor('duration')"
+                      formattingMode="time"></number-indicator>
+    <number-indicator [content]="routeEval.co2 || 0" formattingMode="co2" [color]="getColor('co2')"></number-indicator>
+    <number-indicator [content]="routeEval.efficiency" unit="Efficiency"
+                      [color]="getColor('efficiency')"></number-indicator>
+    <number-indicator [content]="routeEval.catastrophy" unit="Catastrophy"
+                      [color]="getColor('catastrophy')"></number-indicator>
   </article>
 </div>

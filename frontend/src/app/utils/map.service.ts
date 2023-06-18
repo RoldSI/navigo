@@ -11,6 +11,10 @@ export class MapService {
     TRANSIT: '#FFA500'  // Orange
   };
 
+  getColorsByMode(mode: google.maps.TravelMode): string {
+    return this.colors[mode] || "#000";
+  }
+
   getSettingsByMode(mode: google.maps.TravelMode): google.maps.PolylineOptions {
     const color = this.colors[mode];
 

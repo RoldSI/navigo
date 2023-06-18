@@ -5,30 +5,19 @@ export class ColormapService {
   // Stores whether the direction for coloring is ASC (= true) or DESC (= false)
   // TODO: Continue
   colorMapDirection: Map<string, boolean> = new Map([
-    ["distance", false], // higher = worse
+    ["distance", true], // higher = worse
     ["duration", true], // higher = worse
-    ["efficiency", true], // higher = good
-    ["catastrophy", false], // higher = worse
+    ["efficiency", false], // higher = good
+    ["catastrophy", true], // higher = worse
     ["co2", true], // high = worse
   ])
 
   getColor(score: number, minValue: number, maxValue: number, inverse: boolean = false): string {
     // Map the score value to the range [0, 1]
-    const normalizedScore = (score - minValue) / (maxValue - minValue);
-
-    // Convert the normalized score to the corresponding hue value
-    let hue = (1 - normalizedScore) * 120; // 120 corresponds to the range of hues from red to green
-
-    if (inverse) {
-      hue = (normalizedScore * 120) + 120; // Reverse the hue for an inverse color map
-    }
-
-    // Adjust saturation and lightness for darker and richer colors
-    const saturation = 100; // Keep full saturation
-    const lightness = 30 + normalizedScore * 40; // Range of lightness: 30% to 70%
-
-    // Create an HSL color string with adjusted saturation and lightness
-    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    let normalizedScore = (score - minValue) / (maxValue - minValue);
+    if (inverse) normalizedScore = (1 - normalizedScore);
+    const hue = (normalizedScore * (120 - 0)) + 0;
+    return 'hsl(' + hue + ', 100%, 40%)';
   }
 
   generateColormap(objects: any[]): Map<string, string>[] {

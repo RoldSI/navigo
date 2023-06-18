@@ -9,5 +9,5 @@ export class NumberIndicatorComponent {
   @Input() content: string | number = "";
   @Input() unit: string = "";
   @Input() color: string | undefined = "";
-  @Input() formattingMode: string | "distance" | "time" | "" = "";
+  @Input() formattingMode: string | "distance" | "time" | "co2" | "" = "";
 }

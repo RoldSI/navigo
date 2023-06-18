@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {Observable} from "rxjs";
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
+import {MessageService} from "primeng/api";
 
 export type InputObjectStringList = {
   input: string[];
@@ -17,12 +18,16 @@ export type InputObjectString = {
 export class ApiService {
   private token: string = "";
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private messageService: MessageService) {
+  }
+
+  private displayErrorMessage(message: string): void {
+    this.messageService.add({severity: 'error', summary: 'Error', detail: message});
   }
 
   addFavorite(input: InputObjectStringList): Observable<any> {
     // const options = this.getRequestOptions();
-    return this.http.post<any>(`${environment.apiBase}/favorites`, input);
+    return this.http.post<any>(`${environment.apiBase}/favorites`, input)
   }
 
   removeFavorite(input: InputObjectStringList): Observable<any> {
@@ -58,6 +63,8 @@ export class ApiService {
   getUserEfficiency() {
     return this.http.get<any>(`${environment.apiBase}/user/score`);
   }
+
+
 
   addRouteToUser(efficiency: number, distance: number, duration: number, from: string, to: string, catastrophy: number, mode: string) {
     const currentDateTime = new Date();

@@ -13,6 +13,17 @@
     align-items: center;
   }
 
+  .efficiency-wrapper {
+    color: var(--clr-msg);
+    font-weight: 600;
+    display: flex;
+    gap: 5px;
+  }
+
+  .right {
+    gap: 1rem;
+  }
+
   h2 {
     margin: 0;
     color: #6F6F6F;
@@ -31,6 +42,7 @@
   }
 }
 
-.login-button, .logout-button {
-  padding: var(--default-btn-padding);
+.login-button, .logout-button, ::ng-deep .tableButton {
+  padding: var(--default-btn-padding) !important;
+}
 }

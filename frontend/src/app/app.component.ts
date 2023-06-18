@@ -11,12 +11,10 @@ export class AppComponent {
 
   constructor(private apiService: ApiService) {
     // Example of Adding and Reading Favorites...
-    this.apiService.addFavorite({input: ["New Fav"]}).subscribe((res) => {
-      console.log(res);
-
-      this.apiService.getFavorites().subscribe((res) => {
-        console.log(res);
-      });
-    })
+    // this.apiService.addFavorite({input: ["New Fav"]}).subscribe((res) => {
+    //   this.apiService.getFavorites().subscribe((res) => {
+    //     console.log(res);
+    //   });
+    // })
   }
 }

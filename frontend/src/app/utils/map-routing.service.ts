@@ -5,14 +5,16 @@ import {createLatLngLiteral} from "./map-utils";
 import {ApiService} from "./api.service";
 import LatLngLiteral = google.maps.LatLngLiteral;
 import TravelMode = google.maps.TravelMode;
+import {MapService} from "./map.service";
 
 export type RouteDirectionResult = {
   directionsResult: google.maps.DirectionsResult,
   mode: google.maps.TravelMode,
-  distance: string;
-  duration: string;
+  color: string;
+  distance: number;
+  duration: number;
   efficiency: number;
-  // co2: number,
+  co2: number,
   catastrophy: number
 }
 
@@ -30,6 +32,13 @@ export class MapRoutingService {
   private routesLoadingSubject: Subject<boolean> = new Subject<boolean>();
   public routesLoading$: Observable<boolean> = this.routesLoadingSubject.asObservable();
 
+  private updateEfficiencyScoreSubject: Subject<boolean> = new Subject<boolean>();
+  public updateEfficiencyScore$: Observable<boolean> = this.updateEfficiencyScoreSubject.asObservable();
+
+  updateEfficiencyScore(): void {
+    this.updateEfficiencyScoreSubject.next(true);
+  }
+
   public startLocation: string = "";
   public endLocation: string = "";
 
@@ -37,7 +46,8 @@ export class MapRoutingService {
 
   constructor(private readonly _ngZone: NgZone,
               private readonly geocoder: MapGeocoder,
-              private apiService: ApiService) {
+              private apiService: ApiService,
+              private mapService: MapService) {
   };
 
   createDirectionRequest(source: string, dest: string): void {
@@ -55,9 +65,7 @@ export class MapRoutingService {
       }));
     })
 
-    console.log("Search for route...");
     this.apiService.getRoutes({from: source, to: dest}).subscribe((res) => {
-      console.log("ROUTING RES: ", res);
       this.routesLoadingSubject.next(false);
 
       const obj: RouteDirectionResult[] = []
@@ -65,10 +73,12 @@ export class MapRoutingService {
         if (res.hasOwnProperty(key)) {
           const value = res[key];
           const transportMode = value.directionsResult.available_travel_modes
+          const mode = (transportMode && transportMode[0]) ? transportMode[0] : TravelMode.BICYCLING;
           // if(!!(transportMode) || transportMode[0]) return;
           obj.push({
             ...value,
-            mode: (transportMode && transportMode[0]) ? transportMode[0] : TravelMode.BICYCLING,
+            mode: mode,
+            color: this.mapService.getColorsByMode(mode)
           })
         }
       }

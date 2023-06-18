@@ -13,6 +13,10 @@
     height: 100%;
   }
 
+  .label.invalid {
+    margin-top: -1rem;
+  }
+
   .start-destination-wrapper {
     --dist: 1rem;
     display: grid;

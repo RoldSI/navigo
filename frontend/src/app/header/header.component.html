@@ -6,21 +6,55 @@
   <h2 class="page-heading">CO2-Friendly Traveling Portal</h2>
 
   <div class="right">
-    <ng-container *ngIf="userEf>=0">
-      <p>Your efficiency score: {{userEf}}</p>
-    </ng-container>
+    <div *ngIf="userEf>=0" class="efficiency-wrapper">
+      <p class="efficiency">Efficiency Score:</p>
+      <p class="score" [style.color]="efficiencyColor">{{userEf | roundToTwoDecimals}}</p>
+    </div>
+
+    <p-button icon="pi pi-database" styleClass="tableButton p-button-success" (click)="showDialog()"
+              pTooltip="Show Efficiency Scoreboard" tooltipPosition="bottom" [showDelay]="1000"></p-button>
 
     <ng-container *ngIf="loggedIn; else loggedOutTemplate">
       <button pButton pRipple label="Logout"
-              pInputText pTooltip="Click to Logout" tooltipPosition="bottom"
+              pInputText pTooltip="Click to Logout" tooltipPosition="bottom" [showDelay]="1000"
               class="logout-button p-button-danger" (click)="logout()"></button>
     </ng-container>
 
     <ng-template #loggedOutTemplate>
       <!-- Display the login button -->
       <button pButton pRipple label="Login"
-              pInputText pTooltip="Click to Login" tooltipPosition="bottom"
+              pInputText pTooltip="Click to Login" tooltipPosition="bottom" [showDelay]="1000"
               class="login-button p-button-primary" (click)="login()"></button>
     </ng-template>
   </div>
 </div>
+
+<p-dialog header="Efficiency Scoreboard" [(visible)]="visible" [modal]="true" [responsive]="true" [draggable]="true"
+          [resizable]="true" [contentStyle]="{'width': '90vw', 'max-height': '500px', 'overflow': 'auto'}">
+  <div style="height: 400px;">
+    <p-table #dt [value]="data" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,20]" [sortMode]="'multiple'">
+      <!-- Add columns with appropriate field bindings -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="table-heading">
+            Ranking
+          </th>
+          <th class="table-heading">
+            Username
+          </th>
+          <th class="table-heading">
+            Efficiency Score
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-rowData>
+        <tr>
+          <td>{{rowData.ranking}}</td>
+          <td>{{rowData.username}}</td>
+          <td>{{rowData.efficiencyScore}}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
