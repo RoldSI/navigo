@@ -96,7 +96,7 @@ number-indicator {
   border-radius: 50%;
   background-color: gold;
   opacity: 0;
-  animation: sparkAnimation 1s infinite;
+  // animation: sparkAnimation 1s infinite;
 }
 
 .high-catastrophy {
@@ -141,7 +141,7 @@ number-indicator {
   border-radius: 50%;
   background-color: red;
   opacity: 0;
-  animation: sparkAnimation 1s infinite;
+  // animation: sparkAnimation 1s infinite;
 }
 
 .high-catastrophy::before {
@@ -171,24 +171,6 @@ number-indicator {
   }
 }
 
-@keyframes sparkAnimation {
-  0%,
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-  20%,
-  60% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  40% {
-    transform: translate(-50%, -50%) scale(0.8);
-  }
-  80% {
-    transform: translate(-50%, -50%) scale(0.6);
-  }
-}
 h4 {
   padding: 0;
   margin: 0;

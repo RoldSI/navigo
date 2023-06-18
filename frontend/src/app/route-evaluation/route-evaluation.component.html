@@ -1,5 +1,5 @@
 
-<div class="panel route-eval" *ngIf="routeEval">
+<div class="panel route-eval" *ngIf="routeEval" [class.high-catastrophy]="highCatastrophy">
   <header class="heading">
     <h4 [style.color]="routeEval.color">{{routeEval.mode}}</h4>
     <button pButton pRipple icon="pi pi-check-square" class="p-button-success button" (click)="addRoute()"></button>
