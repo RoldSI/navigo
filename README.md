@@ -7,6 +7,7 @@ Navigo is a web application that provides a comprehensive navigation system for 
 To run Navigo locally or deploy it on your own server, follow the instructions below:
 
 ### Prerequisites
++ Python (version 3.9 or above)
 + Node.js (version 12 or above)
 + npm (Node package manager)
 + Flask
